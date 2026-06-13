@@ -16,24 +16,22 @@ const LessonPlanPdfDownload = dynamic(() => import("@/components/LessonPlanPdf")
 });
 
 const fieldLabels: Record<keyof LessonFormData, string> = {
-  studentName: "Student Name",
-  courseNumber: "Course Number",
-  courseTitle: "Course Title",
+  name: "Name",
   subject: "Subject",
   unit: "Unit",
   lesson: "Lesson",
   gradeLevel: "Grade Level",
+  standardsFramework: "Standards Framework or State Standards",
   lessonDescription: "Lesson Description"
 };
 
 const placeholders: Record<keyof LessonFormData, string> = {
-  studentName: "Example: Jordan Rivera",
-  courseNumber: "Example: EME 2040",
-  courseTitle: "Example: Introduction to Educational Technology",
+  name: "Example: Jordan Rivera",
   subject: "Example: Science",
   unit: "Example: Weather and Climate",
   lesson: "Example: Reading Weather Maps",
   gradeLevel: "Example: Grade 4",
+  standardsFramework: "Example: Florida B.E.S.T., Texas TEKS, NGSS, Common Core, or your district standards",
   lessonDescription:
     "Describe what students should learn, the activity you have in mind, and the kind of learning experience you want to create."
 };
@@ -61,10 +59,24 @@ function InputField({
         value={value}
         onChange={(event) => onChange(field, event.target.value)}
         placeholder={placeholders[field]}
+        list={field === "standardsFramework" ? "standards-options" : undefined}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
         className="mt-2 min-h-11 w-full rounded-md border border-[#cbd5cd] bg-white px-3 py-2 text-sm text-[#1d2320] outline-none transition placeholder:text-[#8a968e] focus:border-[#244c5a] focus:ring-2 focus:ring-[#244c5a]/20"
       />
+      {field === "standardsFramework" ? (
+        <datalist id="standards-options">
+          <option value="Florida B.E.S.T. Standards" />
+          <option value="Texas Essential Knowledge and Skills (TEKS)" />
+          <option value="Common Core State Standards" />
+          <option value="Next Generation Science Standards (NGSS)" />
+          <option value="California Common Core State Standards" />
+          <option value="New York State Learning Standards" />
+          <option value="Virginia Standards of Learning (SOL)" />
+          <option value="Georgia Standards of Excellence" />
+          <option value="District standards" />
+        </datalist>
+      ) : null}
       {error ? (
         <p id={`${id}-error`} className="mt-2 text-sm text-[#9d3b32]">
           {error}
@@ -145,12 +157,11 @@ export default function Home() {
       <section className="border-b border-[#d8ded8] bg-[#edf3ef] print:hidden">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-[#5b6f39]">EME 2040</p>
             <h1 className="mt-2 text-3xl font-bold text-[#1d2320] sm:text-4xl">
               Lesson Plan Generator
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-[#4d5952]">
-              Create a complete standard-format lesson plan from your course details, lesson idea, and classroom goals.
+              Create a complete classroom-ready lesson plan from your lesson idea, grade level, and chosen standards framework.
             </p>
           </div>
           <div className="rounded-md border border-[#cbd5cd] bg-white px-4 py-3 text-sm font-semibold text-[#244c5a] shadow-sm">
@@ -164,18 +175,17 @@ export default function Home() {
           <div>
             <h2 className="text-xl font-bold text-[#1d2320]">Lesson details</h2>
             <p className="mt-2 text-sm leading-6 text-[#59635d]">
-              Fill in each required field, then generate a lesson plan preview you can download as a PDF.
+              Fill in each required field, including the standards you want used, then generate a lesson plan preview you can download as a PDF.
             </p>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
-            <InputField field="studentName" value={form.studentName} error={errors.studentName} onChange={updateField} />
-            <InputField field="courseNumber" value={form.courseNumber} error={errors.courseNumber} onChange={updateField} />
-            <InputField field="courseTitle" value={form.courseTitle} error={errors.courseTitle} onChange={updateField} />
+            <InputField field="name" value={form.name} error={errors.name} onChange={updateField} />
             <InputField field="subject" value={form.subject} error={errors.subject} onChange={updateField} />
             <InputField field="unit" value={form.unit} error={errors.unit} onChange={updateField} />
             <InputField field="lesson" value={form.lesson} error={errors.lesson} onChange={updateField} />
             <InputField field="gradeLevel" value={form.gradeLevel} error={errors.gradeLevel} onChange={updateField} />
+            <InputField field="standardsFramework" value={form.standardsFramework} error={errors.standardsFramework} onChange={updateField} />
           </div>
 
           <div>

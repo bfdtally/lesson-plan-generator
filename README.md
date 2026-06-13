@@ -1,6 +1,6 @@
 # Lesson Plan Generator
 
-A simple Next.js app for teacher candidates to generate complete lesson plans from a required course form.
+A simple Next.js app for teachers, tutors, homeschool educators, and education students to generate complete standards-aligned lesson plans.
 
 ## Setup
 
@@ -35,4 +35,4 @@ Deploy this app as a Render Web Service, not a Static Site, because lesson gener
 4. Add environment variables in Render:
    - `OPENAI_API_KEY`
    - `OPENAI_MODEL` optional, defaults to `gpt-4.1-mini`
-5. Deploy, then share the Render URL with students.
+5. Deploy, then share the Render URL with users.

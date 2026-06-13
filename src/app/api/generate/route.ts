@@ -7,10 +7,9 @@ const lessonPlanSchema = {
   additionalProperties: false,
   required: [
     "heading",
-    "student",
-    "courseNumber",
-    "courseTitle",
+    "name",
     "gradeLevel",
+    "standardsFramework",
     "titleOfLesson",
     "subject",
     "unit",
@@ -31,17 +30,15 @@ const lessonPlanSchema = {
     heading: {
       type: "object",
       additionalProperties: false,
-      required: ["program", "template", "format"],
+      required: ["title", "subtitle"],
       properties: {
-        program: { type: "string" },
-        template: { type: "string" },
-        format: { type: "string" }
+        title: { type: "string" },
+        subtitle: { type: "string" }
       }
     },
-    student: { type: "string" },
-    courseNumber: { type: "string" },
-    courseTitle: { type: "string" },
+    name: { type: "string" },
     gradeLevel: { type: "string" },
+    standardsFramework: { type: "string" },
     titleOfLesson: { type: "string" },
     subject: { type: "string" },
     unit: { type: "string" },
@@ -123,11 +120,11 @@ function textArray(value: unknown) {
 function hasAllRequiredSections(lessonPlan: LessonPlan) {
   const procedures = lessonPlan.methodsProcedures;
   return Boolean(
-    lessonPlan.heading?.program &&
-      lessonPlan.student &&
-      lessonPlan.courseNumber &&
-      lessonPlan.courseTitle &&
+    lessonPlan.heading?.title &&
+      lessonPlan.heading?.subtitle &&
+      lessonPlan.name &&
       lessonPlan.gradeLevel &&
+      lessonPlan.standardsFramework &&
       lessonPlan.titleOfLesson &&
       lessonPlan.subject &&
       lessonPlan.unit &&
@@ -211,20 +208,18 @@ export async function POST(request: Request) {
         {
           role: "system",
           content:
-            "You create complete, practical, classroom-appropriate lesson plans for college teacher candidates. Return only valid structured JSON that matches the provided schema. Never return markdown or prose outside the JSON. Keep language student-friendly, specific, teacher-friendly, and ready to use in a real classroom."
+            "You create complete, practical, classroom-appropriate lesson plans for teachers, parents, tutors, homeschool educators, and education students. Return only valid structured JSON that matches the provided schema. Never return markdown or prose outside the JSON. Keep language clear, specific, teacher-friendly, and ready to use in a real classroom."
         },
         {
           role: "user",
           content: `Create a complete lesson plan using this required format:
 
-EME 2040 Introduction to Educational Technology
-Lesson Plan Template
-College of Education: Standard Lesson Plan Format
+Lesson Plan
+Classroom-ready lesson plan and rubric
 
-Student: ${form.studentName}
-Course Number: ${form.courseNumber}
-Course Title: ${form.courseTitle}
+Name: ${form.name}
 Grade Level: ${form.gradeLevel}
+Standards Framework or State Standards to Use: ${form.standardsFramework}
 Title of Lesson: ${form.lesson}
 Subject: ${form.subject}
 Unit: ${form.unit}
@@ -236,7 +231,9 @@ ${form.lessonDescription}
 Requirements:
 - Always include Goals.
 - Always include Behavioral Objectives with measurable action verbs.
-- Always include Standards. If exact state standards are uncertain, clearly label them as suggested standards and tell the student to verify them with the teacher or district.
+- Always include Standards aligned to "${form.standardsFramework}" for this grade level, subject, unit, and lesson.
+- Include the most relevant standard codes and concise descriptions when you are confident.
+- If exact standard codes or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with the official state, district, or standards-framework source.
 - Always include Materials, including low-cost classroom materials when possible.
 - Always include Preventative Techniques.
 - Always include Interventive Techniques.
@@ -246,7 +243,7 @@ Requirements:
 - Always include at least two Enrichment Activities.
 - Always include a rubric with exactly 4 criteria.
 - Each rubric criterion must include Excellent, Proficient, Developing, and Beginning.
-- Each rubric performance level must include points and a clear student-friendly description.
+- Each rubric performance level must include points and a clear learner-friendly description.
 - Include total possible points for the rubric.`
         }
       ],

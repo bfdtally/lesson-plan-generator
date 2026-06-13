@@ -26,16 +26,14 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
   return (
     <article className="space-y-8 rounded-md border border-[#d8ded8] bg-white p-6 shadow-sm sm:p-8 print:rounded-none print:border-0 print:p-0 print:shadow-none">
       <header>
-        <p className="text-sm font-semibold text-[#5b6f39]">{lessonPlan.heading.program}</p>
-        <h2 className="mt-2 text-3xl font-bold text-[#1d2320] print:text-2xl">{lessonPlan.heading.template}</h2>
-        <p className="mt-1 text-sm text-[#59635d]">{lessonPlan.heading.format}</p>
+        <h2 className="text-3xl font-bold text-[#1d2320] print:text-2xl">{lessonPlan.heading.title}</h2>
+        <p className="mt-2 text-sm text-[#59635d]">{lessonPlan.heading.subtitle}</p>
       </header>
 
       <dl className="grid gap-4 rounded-md bg-[#f1f5f2] p-4 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-2 print:border print:border-[#b8b8b8] print:bg-white">
-        <Detail label="Student" value={lessonPlan.student} />
-        <Detail label="Course Number" value={lessonPlan.courseNumber} />
-        <Detail label="Course Title" value={lessonPlan.courseTitle} />
+        <Detail label="Name" value={lessonPlan.name} />
         <Detail label="Grade Level" value={lessonPlan.gradeLevel} />
+        <Detail label="Standards" value={lessonPlan.standardsFramework} />
         <Detail label="Title of Lesson" value={lessonPlan.titleOfLesson} />
         <Detail label="Subject" value={lessonPlan.subject} />
         <Detail label="Unit" value={lessonPlan.unit} />

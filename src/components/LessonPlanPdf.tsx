@@ -154,26 +154,24 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
     <Document>
       <Page size="LETTER" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>EME 2040 Lesson Plan</Text>
-          <Text style={styles.subtitle}>{lessonPlan.heading.template}</Text>
-          <Text style={styles.subtitle}>{lessonPlan.heading.format}</Text>
+          <Text style={styles.title}>{lessonPlan.heading.title}</Text>
+          <Text style={styles.subtitle}>{lessonPlan.heading.subtitle}</Text>
         </View>
 
         <View style={styles.detailsGrid}>
-          <Detail label="Student Name" value={lessonPlan.student} />
-          <Detail label="Course Number" value={lessonPlan.courseNumber} />
-          <Detail label="Course Title" value={lessonPlan.courseTitle} />
+          <Detail label="Name" value={lessonPlan.name} />
           <Detail label="Subject" value={lessonPlan.subject} />
           <Detail label="Unit" value={lessonPlan.unit} />
           <Detail label="Lesson" value={lessonPlan.lesson} />
           <Detail label="Grade Level" value={lessonPlan.gradeLevel} />
+          <Detail label="Standards" value={lessonPlan.standardsFramework} />
           <Detail label="Title of Lesson" value={lessonPlan.titleOfLesson} />
         </View>
 
         <Section title="Goals" items={lessonPlan.goals} />
-        <Section title="Specific Behavioral Objectives" items={lessonPlan.specificBehavioralObjectives} />
-        <Section title="Associated Standards" items={lessonPlan.associatedStandards} />
-        <Section title="List of Materials, Resources, and Equipment" items={lessonPlan.materialsResourcesEquipment} />
+        <Section title="Behavioral Objectives" items={lessonPlan.specificBehavioralObjectives} />
+        <Section title="Standards" items={lessonPlan.associatedStandards} />
+        <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
         <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />
         <Section title="Interventive Techniques" items={lessonPlan.interventiveTechniques} />
 
@@ -236,7 +234,7 @@ export default function LessonPlanPdfDownload({ lessonPlan }: { lessonPlan: Less
       .trim()
       .replace(/[^a-zA-Z0-9]+/g, "_")
       .replace(/^_+|_+$/g, "");
-  const pdfName = `${cleanPart(lessonPlan.student, "Lesson")}_${cleanPart(
+  const pdfName = `${cleanPart(lessonPlan.name, "Lesson")}_${cleanPart(
     lessonPlan.titleOfLesson || lessonPlan.lesson,
     "Plan"
   )}_Lesson_Plan.pdf`;

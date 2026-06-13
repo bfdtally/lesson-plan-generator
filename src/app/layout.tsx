@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Lesson Plan Generator",
-  description: "Generate complete lesson plans for teacher candidates."
+  description: "Generate complete classroom-ready lesson plans aligned to selected standards."
 };
 
 export default function RootLayout({

@@ -1,11 +1,10 @@
 export type LessonFormData = {
-  studentName: string;
-  courseNumber: string;
-  courseTitle: string;
+  name: string;
   subject: string;
   unit: string;
   lesson: string;
   gradeLevel: string;
+  standardsFramework: string;
   lessonDescription: string;
 };
 
@@ -22,14 +21,12 @@ export type RubricCriterion = {
 
 export type LessonPlan = {
   heading: {
-    program: string;
-    template: string;
-    format: string;
+    title: string;
+    subtitle: string;
   };
-  student: string;
-  courseNumber: string;
-  courseTitle: string;
+  name: string;
   gradeLevel: string;
+  standardsFramework: string;
   titleOfLesson: string;
   subject: string;
   unit: string;
@@ -57,12 +54,11 @@ export type LessonPlan = {
 };
 
 export const requiredFields: Array<keyof LessonFormData> = [
-  "studentName",
-  "courseNumber",
-  "courseTitle",
+  "name",
   "subject",
   "unit",
   "lesson",
   "gradeLevel",
+  "standardsFramework",
   "lessonDescription"
 ];

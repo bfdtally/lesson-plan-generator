@@ -1,27 +1,24 @@
 import type { LessonFormData, LessonPlan } from "./types";
 
 export const emptyForm: LessonFormData = {
-  studentName: "",
-  courseNumber: "",
-  courseTitle: "",
+  name: "",
   subject: "",
   unit: "",
   lesson: "",
   gradeLevel: "",
+  standardsFramework: "",
   lessonDescription: ""
 };
 
 export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
   return {
     heading: {
-      program: "EME 2040 Introduction to Educational Technology",
-      template: "Lesson Plan Template",
-      format: "College of Education: Standard Lesson Plan Format"
+      title: "Lesson Plan",
+      subtitle: "Classroom-ready lesson plan and rubric"
     },
-    student: form.studentName,
-    courseNumber: form.courseNumber,
-    courseTitle: form.courseTitle,
+    name: form.name,
     gradeLevel: form.gradeLevel,
+    standardsFramework: form.standardsFramework,
     titleOfLesson: form.lesson,
     subject: form.subject,
     unit: form.unit,
@@ -31,7 +28,7 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
       "Given teacher modeling, guided practice, and classroom materials, students will explain or demonstrate the key lesson concept with at least 80% accuracy."
     ],
     associatedStandards: [
-      "Suggested standard: Align this lesson with an appropriate grade-level standard for the subject area. Student teacher should verify the exact state, district, or school standard with the cooperating teacher or district curriculum guide."
+      `Suggested ${form.standardsFramework} alignment: Select grade-level standards that match the lesson topic and verify exact standard codes and wording with the official state, district, or standards-framework source.`
     ],
     materialsResourcesEquipment: [
       "Teacher presentation or anchor chart",
