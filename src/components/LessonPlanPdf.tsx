@@ -164,13 +164,14 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
           <Detail label="Unit" value={lessonPlan.unit} />
           <Detail label="Lesson" value={lessonPlan.lesson} />
           <Detail label="Grade Level" value={lessonPlan.gradeLevel} />
-          <Detail label="Standards" value={lessonPlan.standardsFramework} />
+          <Detail label="State" value={lessonPlan.state} />
           <Detail label="Title of Lesson" value={lessonPlan.titleOfLesson} />
         </View>
 
         <Section title="Goals" items={lessonPlan.goals} />
         <Section title="Behavioral Objectives" items={lessonPlan.specificBehavioralObjectives} />
         <Section title="Standards" items={lessonPlan.associatedStandards} />
+        <Section title="Standards Sources" items={lessonPlan.standardsSources} />
         <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
         <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />
         <Section title="Interventive Techniques" items={lessonPlan.interventiveTechniques} />

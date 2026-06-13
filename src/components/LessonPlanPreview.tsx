@@ -33,7 +33,7 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
       <dl className="grid gap-4 rounded-md bg-[#f1f5f2] p-4 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-2 print:border print:border-[#b8b8b8] print:bg-white">
         <Detail label="Name" value={lessonPlan.name} />
         <Detail label="Grade Level" value={lessonPlan.gradeLevel} />
-        <Detail label="Standards" value={lessonPlan.standardsFramework} />
+        <Detail label="State" value={lessonPlan.state} />
         <Detail label="Title of Lesson" value={lessonPlan.titleOfLesson} />
         <Detail label="Subject" value={lessonPlan.subject} />
         <Detail label="Unit" value={lessonPlan.unit} />
@@ -43,6 +43,7 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
       <Section title="Goals" items={lessonPlan.goals} />
       <Section title="Behavioral Objectives" items={lessonPlan.specificBehavioralObjectives} />
       <Section title="Standards" items={lessonPlan.associatedStandards} />
+      <Section title="Standards Sources" items={lessonPlan.standardsSources} />
       <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
       <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />
       <Section title="Interventive Techniques" items={lessonPlan.interventiveTechniques} />

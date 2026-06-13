@@ -9,7 +9,7 @@ const lessonPlanSchema = {
     "heading",
     "name",
     "gradeLevel",
-    "standardsFramework",
+    "state",
     "titleOfLesson",
     "subject",
     "unit",
@@ -17,6 +17,7 @@ const lessonPlanSchema = {
     "goals",
     "specificBehavioralObjectives",
     "associatedStandards",
+    "standardsSources",
     "materialsResourcesEquipment",
     "preventativeTechniques",
     "interventiveTechniques",
@@ -38,7 +39,7 @@ const lessonPlanSchema = {
     },
     name: { type: "string" },
     gradeLevel: { type: "string" },
-    standardsFramework: { type: "string" },
+    state: { type: "string" },
     titleOfLesson: { type: "string" },
     subject: { type: "string" },
     unit: { type: "string" },
@@ -46,6 +47,7 @@ const lessonPlanSchema = {
     goals: { type: "array", items: { type: "string" } },
     specificBehavioralObjectives: { type: "array", items: { type: "string" } },
     associatedStandards: { type: "array", items: { type: "string" } },
+    standardsSources: { type: "array", items: { type: "string" } },
     materialsResourcesEquipment: { type: "array", items: { type: "string" } },
     preventativeTechniques: { type: "array", items: { type: "string" } },
     interventiveTechniques: { type: "array", items: { type: "string" } },
@@ -124,7 +126,7 @@ function hasAllRequiredSections(lessonPlan: LessonPlan) {
       lessonPlan.heading?.subtitle &&
       lessonPlan.name &&
       lessonPlan.gradeLevel &&
-      lessonPlan.standardsFramework &&
+      lessonPlan.state &&
       lessonPlan.titleOfLesson &&
       lessonPlan.subject &&
       lessonPlan.unit &&
@@ -132,6 +134,7 @@ function hasAllRequiredSections(lessonPlan: LessonPlan) {
       textArray(lessonPlan.goals).length &&
       textArray(lessonPlan.specificBehavioralObjectives).length &&
       textArray(lessonPlan.associatedStandards).length &&
+      textArray(lessonPlan.standardsSources).length &&
       textArray(lessonPlan.materialsResourcesEquipment).length &&
       textArray(lessonPlan.preventativeTechniques).length &&
       textArray(lessonPlan.interventiveTechniques).length &&
@@ -177,6 +180,39 @@ function assertCompleteLessonPlan(lessonPlan: LessonPlan) {
   }
 }
 
+async function findStandardsContext(openai: OpenAI, form: LessonFormData) {
+  const response = await openai.responses.create({
+    model: process.env.OPENAI_SEARCH_MODEL || process.env.OPENAI_MODEL || "gpt-4.1-mini",
+    tools: [{ type: "web_search_preview" }],
+    input: [
+      {
+        role: "system",
+        content:
+          "Find official K-12 academic standards sources. Prefer official state education agency pages, official standards portals, and official state-backed standards databases such as CPALMS for Florida. Be concise."
+      },
+      {
+        role: "user",
+        content: `Find the most relevant official standards sources and likely standards for this lesson.
+
+State: ${form.state}
+Grade Level: ${form.gradeLevel}
+Subject: ${form.subject}
+Unit: ${form.unit}
+Lesson: ${form.lesson}
+Lesson Description: ${form.lessonDescription}
+
+Return concise notes with:
+- likely official standards framework/source name for this state and subject
+- 2 to 6 likely relevant standards, benchmarks, or standard-code candidates
+- source URLs or official source names
+- uncertainty notes if exact wording or codes need verification`
+      }
+    ]
+  });
+
+  return response.output_text;
+}
+
 export async function POST(request: Request) {
   const form = (await request.json()) as LessonFormData;
   const missingFields = validateForm(form);
@@ -201,6 +237,14 @@ export async function POST(request: Request) {
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
     });
+    let standardsContext = "";
+    try {
+      standardsContext = await findStandardsContext(openai, form);
+    } catch (lookupError) {
+      console.error("Standards lookup failed:", lookupError);
+      standardsContext =
+        `Live standards lookup was unavailable. Generate suggested ${form.state} standards alignments from model knowledge and clearly tell the user to verify exact codes and wording with the official state education agency or district standards source.`;
+    }
 
     const response = await openai.responses.create({
       model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
@@ -219,7 +263,7 @@ Classroom-ready lesson plan and rubric
 
 Name: ${form.name}
 Grade Level: ${form.gradeLevel}
-Standards Framework or State Standards to Use: ${form.standardsFramework}
+State for K-12 Content Standards: ${form.state}
 Title of Lesson: ${form.lesson}
 Subject: ${form.subject}
 Unit: ${form.unit}
@@ -228,12 +272,18 @@ Lesson: ${form.lesson}
 Lesson Description:
 ${form.lessonDescription}
 
+Live standards lookup notes:
+${standardsContext}
+
 Requirements:
 - Always include Goals.
 - Always include Behavioral Objectives with measurable action verbs.
-- Always include Standards aligned to "${form.standardsFramework}" for this grade level, subject, unit, and lesson.
-- Include the most relevant standard codes and concise descriptions when you are confident.
-- If exact standard codes or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with the official state, district, or standards-framework source.
+- Always identify the likely official K-12 content standards framework for ${form.state} and this subject area. For example, Florida science and social studies standards may be found through CPALMS, while Florida math and ELA use B.E.S.T. Standards.
+- Always include Standards aligned to ${form.state}, the grade level, subject, unit, and lesson.
+- Use the live standards lookup notes above to select the most relevant standards.
+- Include the most relevant standard codes, strands, benchmarks, or concise descriptions when the lookup supports them.
+- Always include standardsSources with official source names and URLs when available.
+- If exact standard codes, source names, or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with the official ${form.state} education agency, district, or standards website.
 - Always include Materials, including low-cost classroom materials when possible.
 - Always include Preventative Techniques.
 - Always include Interventive Techniques.

@@ -21,7 +21,7 @@ const fieldLabels: Record<keyof LessonFormData, string> = {
   unit: "Unit",
   lesson: "Lesson",
   gradeLevel: "Grade Level",
-  standardsFramework: "Standards Framework or State Standards",
+  state: "State for K-12 Content Standards",
   lessonDescription: "Lesson Description"
 };
 
@@ -31,7 +31,7 @@ const placeholders: Record<keyof LessonFormData, string> = {
   unit: "Example: Weather and Climate",
   lesson: "Example: Reading Weather Maps",
   gradeLevel: "Example: Grade 4",
-  standardsFramework: "Example: Florida B.E.S.T., Texas TEKS, NGSS, Common Core, or your district standards",
+  state: "Example: Florida",
   lessonDescription:
     "Describe what students should learn, the activity you have in mind, and the kind of learning experience you want to create."
 };
@@ -59,22 +59,64 @@ function InputField({
         value={value}
         onChange={(event) => onChange(field, event.target.value)}
         placeholder={placeholders[field]}
-        list={field === "standardsFramework" ? "standards-options" : undefined}
+        list={field === "state" ? "state-options" : undefined}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
         className="mt-2 min-h-11 w-full rounded-md border border-[#cbd5cd] bg-white px-3 py-2 text-sm text-[#1d2320] outline-none transition placeholder:text-[#8a968e] focus:border-[#244c5a] focus:ring-2 focus:ring-[#244c5a]/20"
       />
-      {field === "standardsFramework" ? (
-        <datalist id="standards-options">
-          <option value="Florida B.E.S.T. Standards" />
-          <option value="Texas Essential Knowledge and Skills (TEKS)" />
-          <option value="Common Core State Standards" />
-          <option value="Next Generation Science Standards (NGSS)" />
-          <option value="California Common Core State Standards" />
-          <option value="New York State Learning Standards" />
-          <option value="Virginia Standards of Learning (SOL)" />
-          <option value="Georgia Standards of Excellence" />
-          <option value="District standards" />
+      {field === "state" ? (
+        <datalist id="state-options">
+          <option value="Alabama" />
+          <option value="Alaska" />
+          <option value="Arizona" />
+          <option value="Arkansas" />
+          <option value="California" />
+          <option value="Colorado" />
+          <option value="Connecticut" />
+          <option value="Delaware" />
+          <option value="District of Columbia" />
+          <option value="Florida" />
+          <option value="Georgia" />
+          <option value="Hawaii" />
+          <option value="Idaho" />
+          <option value="Illinois" />
+          <option value="Indiana" />
+          <option value="Iowa" />
+          <option value="Kansas" />
+          <option value="Kentucky" />
+          <option value="Louisiana" />
+          <option value="Maine" />
+          <option value="Maryland" />
+          <option value="Massachusetts" />
+          <option value="Michigan" />
+          <option value="Minnesota" />
+          <option value="Mississippi" />
+          <option value="Missouri" />
+          <option value="Montana" />
+          <option value="Nebraska" />
+          <option value="Nevada" />
+          <option value="New Hampshire" />
+          <option value="New Jersey" />
+          <option value="New Mexico" />
+          <option value="New York" />
+          <option value="North Carolina" />
+          <option value="North Dakota" />
+          <option value="Ohio" />
+          <option value="Oklahoma" />
+          <option value="Oregon" />
+          <option value="Pennsylvania" />
+          <option value="Rhode Island" />
+          <option value="South Carolina" />
+          <option value="South Dakota" />
+          <option value="Tennessee" />
+          <option value="Texas" />
+          <option value="Utah" />
+          <option value="Vermont" />
+          <option value="Virginia" />
+          <option value="Washington" />
+          <option value="West Virginia" />
+          <option value="Wisconsin" />
+          <option value="Wyoming" />
         </datalist>
       ) : null}
       {error ? (
@@ -175,7 +217,7 @@ export default function Home() {
           <div>
             <h2 className="text-xl font-bold text-[#1d2320]">Lesson details</h2>
             <p className="mt-2 text-sm leading-6 text-[#59635d]">
-              Fill in each required field, including the standards you want used, then generate a lesson plan preview you can download as a PDF.
+              Fill in each required field, including the state whose standards you want used, then generate a lesson plan preview you can download as a PDF.
             </p>
           </div>
 
@@ -185,7 +227,7 @@ export default function Home() {
             <InputField field="unit" value={form.unit} error={errors.unit} onChange={updateField} />
             <InputField field="lesson" value={form.lesson} error={errors.lesson} onChange={updateField} />
             <InputField field="gradeLevel" value={form.gradeLevel} error={errors.gradeLevel} onChange={updateField} />
-            <InputField field="standardsFramework" value={form.standardsFramework} error={errors.standardsFramework} onChange={updateField} />
+            <InputField field="state" value={form.state} error={errors.state} onChange={updateField} />
           </div>
 
           <div>

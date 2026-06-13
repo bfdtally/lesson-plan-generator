@@ -4,7 +4,7 @@ export type LessonFormData = {
   unit: string;
   lesson: string;
   gradeLevel: string;
-  standardsFramework: string;
+  state: string;
   lessonDescription: string;
 };
 
@@ -26,7 +26,7 @@ export type LessonPlan = {
   };
   name: string;
   gradeLevel: string;
-  standardsFramework: string;
+  state: string;
   titleOfLesson: string;
   subject: string;
   unit: string;
@@ -34,6 +34,7 @@ export type LessonPlan = {
   goals: string[];
   specificBehavioralObjectives: string[];
   associatedStandards: string[];
+  standardsSources: string[];
   materialsResourcesEquipment: string[];
   preventativeTechniques: string[];
   interventiveTechniques: string[];
@@ -59,6 +60,6 @@ export const requiredFields: Array<keyof LessonFormData> = [
   "unit",
   "lesson",
   "gradeLevel",
-  "standardsFramework",
+  "state",
   "lessonDescription"
 ];

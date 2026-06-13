@@ -6,7 +6,7 @@ export const emptyForm: LessonFormData = {
   unit: "",
   lesson: "",
   gradeLevel: "",
-  standardsFramework: "",
+  state: "",
   lessonDescription: ""
 };
 
@@ -18,7 +18,7 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
     },
     name: form.name,
     gradeLevel: form.gradeLevel,
-    standardsFramework: form.standardsFramework,
+    state: form.state,
     titleOfLesson: form.lesson,
     subject: form.subject,
     unit: form.unit,
@@ -28,7 +28,10 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
       "Given teacher modeling, guided practice, and classroom materials, students will explain or demonstrate the key lesson concept with at least 80% accuracy."
     ],
     associatedStandards: [
-      `Suggested ${form.standardsFramework} alignment: Select grade-level standards that match the lesson topic and verify exact standard codes and wording with the official state, district, or standards-framework source.`
+      `Suggested ${form.state} standards alignment: Select grade-level standards that match the lesson topic and verify exact standard codes and wording with the official state education agency or district source.`
+    ],
+    standardsSources: [
+      `Official ${form.state} education agency or standards website`
     ],
     materialsResourcesEquipment: [
       "Teacher presentation or anchor chart",
