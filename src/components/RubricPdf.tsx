@@ -141,7 +141,7 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
           const x = margin + index * (infoWidth + 8);
           drawText(label, x, y, 8, true, darkText);
           const value = label === "Teacher / Evaluator" ? lessonPlan.name : "";
-          const field = addTextField(`header.${label.toLowerCase().replace(/[^a-z]+/g, "_")}`, x, y - 19, infoWidth, 15);
+          const field = addTextField(`header_${label.toLowerCase().replace(/[^a-z]+/g, "_")}`, x, y - 19, infoWidth, 15);
           if (value) {
             field.setText(value);
           }
@@ -186,7 +186,7 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
           const level = criterion.levels.find((item) => item.label === label);
           drawCell(x, y, levelWidth, rowHeight);
 
-          const checkBox = form.createCheckBox(`criteria.${criterionIndex}.${label.toLowerCase()}.selected`);
+          const checkBox = form.createCheckBox(`criteria_${criterionIndex}_${label.toLowerCase()}_selected`);
           checkBox.addToPage(page, {
             x: x + 6,
             y: y - 17,
@@ -212,17 +212,18 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
       drawText(String(lessonPlan.rubric.totalPossiblePoints), margin, y - 18, 10, true);
 
       drawText("Points Earned", margin + 180, y, 8, true, darkText);
-      addTextField("score.points_earned", margin + 180, y - 22, 120, 18);
+      addTextField("score_points_earned", margin + 180, y - 22, 120, 18);
 
       drawText("Percentage / Grade", margin + 330, y, 8, true, darkText);
-      addTextField("score.percentage_grade", margin + 330, y - 22, 150, 18);
+      addTextField("score_percentage_grade", margin + 330, y - 22, 150, 18);
 
       drawText("Teacher Feedback / Notes", margin, y - 46, 8, true, darkText);
-      addTextField("feedback.notes", margin, y - 116, tableWidth, 62, true);
+      addTextField("feedback_notes", margin, y - 116, tableWidth, 62, true);
 
       form.updateFieldAppearances(regularFont);
       const pdfBytes = await pdfDoc.save();
-      downloadBlob(new Blob([pdfBytes], { type: "application/pdf" }), fileName);
+      const pdfBlobPart = new Uint8Array(pdfBytes) as BlobPart;
+      downloadBlob(new Blob([pdfBlobPart], { type: "application/pdf" }), fileName);
     } finally {
       setIsPreparing(false);
     }
