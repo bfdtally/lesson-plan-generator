@@ -82,25 +82,13 @@ const styles = StyleSheet.create({
     borderLeft: "1 solid #9aa5b1"
   },
   rubricCriterionCell: {
-    width: "24%",
-    borderRight: "1 solid #9aa5b1",
-    borderBottom: "1 solid #9aa5b1",
-    padding: 4
-  },
-  rubricLevelCell: {
     width: "18%",
     borderRight: "1 solid #9aa5b1",
     borderBottom: "1 solid #9aa5b1",
     padding: 4
   },
-  rubricPointsCell: {
-    width: "10%",
-    borderRight: "1 solid #9aa5b1",
-    borderBottom: "1 solid #9aa5b1",
-    padding: 4
-  },
-  rubricDescriptionCell: {
-    width: "48%",
+  rubricCell: {
+    width: "20.5%",
     borderRight: "1 solid #9aa5b1",
     borderBottom: "1 solid #9aa5b1",
     padding: 4
@@ -206,37 +194,28 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
           <View style={styles.rubricCriterionCell}>
             <Text style={styles.rubricHeaderText}>Criteria</Text>
           </View>
-          <View style={styles.rubricLevelCell}>
-            <Text style={styles.rubricHeaderText}>Level</Text>
-          </View>
-          <View style={styles.rubricPointsCell}>
-            <Text style={styles.rubricHeaderText}>Pts</Text>
-          </View>
-          <View style={styles.rubricDescriptionCell}>
-            <Text style={styles.rubricHeaderText}>Description</Text>
-          </View>
+          {rubricLevels.map((label) => (
+            <View key={label} style={styles.rubricCell}>
+              <Text style={styles.rubricHeaderText}>{label} / Points</Text>
+            </View>
+          ))}
         </View>
-        {lessonPlan.rubric.criteria.flatMap((criterion) =>
-          rubricLevels.map((label) => {
-            const level = criterion.levels.find((item) => item.label === label);
-            return (
-              <View key={`${criterion.criterion}-${label}`} style={styles.rubricRow}>
-                <View style={styles.rubricCriterionCell}>
-                  <Text style={styles.rubricHeaderText}>{criterion.criterion}</Text>
-                </View>
-                <View style={styles.rubricLevelCell}>
-                  <Text style={styles.rubricHeaderText}>{label}</Text>
-                </View>
-                <View style={styles.rubricPointsCell}>
-                  <Text style={styles.rubricPoints}>{level?.points ?? 0}</Text>
-                </View>
-                <View style={styles.rubricDescriptionCell}>
+        {lessonPlan.rubric.criteria.map((criterion) => (
+          <View key={criterion.criterion} style={styles.rubricRow}>
+            <View style={styles.rubricCriterionCell}>
+              <Text style={styles.rubricHeaderText}>{criterion.criterion}</Text>
+            </View>
+            {rubricLevels.map((label) => {
+              const level = criterion.levels.find((item) => item.label === label);
+              return (
+                <View key={`${criterion.criterion}-${label}`} style={styles.rubricCell}>
+                  <Text style={styles.rubricPoints}>{level?.points ?? 0} pts</Text>
                   <Text style={styles.smallText}>{level?.description ?? ""}</Text>
                 </View>
-              </View>
-            );
-          })
-        )}
+              );
+            })}
+          </View>
+        ))}
         <Text style={styles.rubricTotal}>
           Total possible points: {lessonPlan.rubric.totalPossiblePoints}
         </Text>
