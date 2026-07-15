@@ -18,6 +18,7 @@ const lessonPlanSchema = {
     "specificBehavioralObjectives",
     "associatedStandards",
     "standardsSources",
+    "providedResources",
     "materialsResourcesEquipment",
     "preventativeTechniques",
     "interventiveTechniques",
@@ -48,6 +49,7 @@ const lessonPlanSchema = {
     specificBehavioralObjectives: { type: "array", items: { type: "string" } },
     associatedStandards: { type: "array", items: { type: "string" } },
     standardsSources: { type: "array", items: { type: "string" } },
+    providedResources: { type: "array", items: { type: "string" } },
     materialsResourcesEquipment: { type: "array", items: { type: "string" } },
     preventativeTechniques: { type: "array", items: { type: "string" } },
     interventiveTechniques: { type: "array", items: { type: "string" } },
@@ -272,6 +274,9 @@ Lesson: ${form.lesson}
 Lesson Description:
 ${form.lessonDescription}
 
+Teacher-provided resources, URLs, uploaded file names, and excerpts:
+${form.resources?.trim() || "No additional resources were provided."}
+
 Live standards lookup notes:
 ${standardsContext}
 
@@ -285,6 +290,9 @@ Requirements:
 - Always include standardsSources with official source names and URLs when available.
 - If exact standard codes, source names, or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with the official ${form.state} education agency, district, or standards website.
 - Always include Materials, including low-cost classroom materials when possible.
+- If teacher-provided resources are included, use them to enrich the lesson where relevant.
+- Always include providedResources as a concise list of resources, URLs, uploaded file names, or excerpts the lesson used. Use an empty array if none were provided.
+- Do not invent resource URLs. Only include URLs that were provided by the user or found in the live standards lookup notes.
 - Always include Preventative Techniques.
 - Always include Interventive Techniques.
 - Always include Step-by-step Procedures with Attention Grabber, Introduction of the Lesson, Teacher Modeling / Direct Instruction, Critical Thinking Questioning / Guided Practice, and Independent or Group Work.

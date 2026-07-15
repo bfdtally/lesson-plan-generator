@@ -7,6 +7,7 @@ export const emptyForm: LessonFormData = {
   lesson: "",
   gradeLevel: "",
   state: "",
+  resources: "",
   lessonDescription: ""
 };
 
@@ -33,6 +34,9 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
     standardsSources: [
       `Official ${form.state} education agency or standards website`
     ],
+    providedResources: form.resources
+      ? form.resources.split("\n").filter((resource) => resource.trim().length > 0)
+      : [],
     materialsResourcesEquipment: [
       "Teacher presentation or anchor chart",
       "Student handouts or notebooks",

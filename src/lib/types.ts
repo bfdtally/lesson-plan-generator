@@ -5,6 +5,7 @@ export type LessonFormData = {
   lesson: string;
   gradeLevel: string;
   state: string;
+  resources: string;
   lessonDescription: string;
 };
 
@@ -35,6 +36,7 @@ export type LessonPlan = {
   specificBehavioralObjectives: string[];
   associatedStandards: string[];
   standardsSources: string[];
+  providedResources: string[];
   materialsResourcesEquipment: string[];
   preventativeTechniques: string[];
   interventiveTechniques: string[];

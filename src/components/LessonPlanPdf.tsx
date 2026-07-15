@@ -12,13 +12,13 @@ import type { LessonPlan } from "@/lib/types";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
-    fontSize: 9.5,
+    padding: 34,
+    fontSize: 9,
     color: "#1f2933",
     fontFamily: "Helvetica"
   },
   header: {
-    marginBottom: 14,
+    marginBottom: 10,
     borderBottom: "1 solid #244c5a",
     paddingBottom: 12
   },
@@ -36,23 +36,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     border: "1 solid #cbd2d9",
-    marginBottom: 10
+    marginBottom: 8
   },
   detailCell: {
     width: "50%",
-    padding: 6,
+    padding: 4,
     borderBottom: "1 solid #e4e7eb"
-  },
-  section: {
-    marginTop: 11
-  },
-  keepTogether: {
-    marginTop: 11
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: 700,
-    marginBottom: 5,
+    marginTop: 8,
+    marginBottom: 3,
     color: "#244c5a"
   },
   line: {
@@ -67,7 +62,7 @@ const styles = StyleSheet.create({
   },
   bullet: {
     flexDirection: "row",
-    marginBottom: 3
+    marginBottom: 2
   },
   bulletText: {
     width: 10
@@ -75,28 +70,40 @@ const styles = StyleSheet.create({
   bulletContent: {
     flex: 1
   },
-  rubricTable: {
-    borderTop: "1 solid #9aa5b1",
-    borderLeft: "1 solid #9aa5b1"
-  },
   rubricHeaderRow: {
     flexDirection: "row",
-    backgroundColor: "#edf3ef"
+    backgroundColor: "#edf3ef",
+    borderTop: "1 solid #9aa5b1",
+    borderLeft: "1 solid #9aa5b1",
+    marginTop: 2
   },
   rubricRow: {
-    flexDirection: "row"
+    flexDirection: "row",
+    borderLeft: "1 solid #9aa5b1"
   },
   rubricCriterionCell: {
+    width: "24%",
+    borderRight: "1 solid #9aa5b1",
+    borderBottom: "1 solid #9aa5b1",
+    padding: 4
+  },
+  rubricLevelCell: {
     width: "18%",
     borderRight: "1 solid #9aa5b1",
     borderBottom: "1 solid #9aa5b1",
-    padding: 5
+    padding: 4
   },
-  rubricCell: {
-    width: "20.5%",
+  rubricPointsCell: {
+    width: "10%",
     borderRight: "1 solid #9aa5b1",
     borderBottom: "1 solid #9aa5b1",
-    padding: 5
+    padding: 4
+  },
+  rubricDescriptionCell: {
+    width: "48%",
+    borderRight: "1 solid #9aa5b1",
+    borderBottom: "1 solid #9aa5b1",
+    padding: 4
   },
   rubricHeaderText: {
     fontSize: 8.5,
@@ -106,7 +113,7 @@ const styles = StyleSheet.create({
   rubricPoints: {
     fontSize: 8.5,
     fontWeight: 700,
-    marginBottom: 2
+    marginBottom: 0
   },
   rubricTotal: {
     marginTop: 6,
@@ -118,23 +125,25 @@ const styles = StyleSheet.create({
 
 function BulletList({ items }: { items: string[] }) {
   return (
-    <View>
+    <>
       {items.map((item, index) => (
         <View key={`${item}-${index}`} style={styles.bullet}>
           <Text style={styles.bulletText}>-</Text>
           <Text style={styles.bulletContent}>{item}</Text>
         </View>
       ))}
-    </View>
+    </>
   );
 }
 
 function Section({ title, items }: { title: string; items: string[] }) {
   return (
-    <View style={styles.section} wrap={false}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+    <>
+      <Text style={styles.sectionTitle} minPresenceAhead={18}>
+        {title}
+      </Text>
       <BulletList items={items} />
-    </View>
+    </>
   );
 }
 
@@ -172,55 +181,65 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
         <Section title="Behavioral Objectives" items={lessonPlan.specificBehavioralObjectives} />
         <Section title="Standards" items={lessonPlan.associatedStandards} />
         <Section title="Standards Sources" items={lessonPlan.standardsSources} />
+        {lessonPlan.providedResources.length > 0 ? (
+          <Section title="Provided Resources" items={lessonPlan.providedResources} />
+        ) : null}
         <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
         <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />
         <Section title="Interventive Techniques" items={lessonPlan.interventiveTechniques} />
 
-        <View style={styles.keepTogether} break>
-          <Text style={styles.sectionTitle}>Methods/Procedures</Text>
-          <Section title="1. Attention Grabber" items={lessonPlan.methodsProcedures.attentionGrabber} />
-          <Section title="2. Introduction of the Lesson" items={lessonPlan.methodsProcedures.introductionOfLesson} />
-          <Section title="3. Teacher Modeling / Direct Instruction" items={lessonPlan.methodsProcedures.teacherModelingDirectInstruction} />
-          <Section title="4. Critical Thinking Questioning / Guided Practice" items={lessonPlan.methodsProcedures.criticalThinkingQuestioningGuidedPractice} />
-          <Section title="5. Independent or Group Work" items={lessonPlan.methodsProcedures.independentOrGroupWork} />
-        </View>
+        <Text style={styles.sectionTitle} minPresenceAhead={18}>
+          Methods/Procedures
+        </Text>
+        <Section title="1. Attention Grabber" items={lessonPlan.methodsProcedures.attentionGrabber} />
+        <Section title="2. Introduction of the Lesson" items={lessonPlan.methodsProcedures.introductionOfLesson} />
+        <Section title="3. Teacher Modeling / Direct Instruction" items={lessonPlan.methodsProcedures.teacherModelingDirectInstruction} />
+        <Section title="4. Critical Thinking Questioning / Guided Practice" items={lessonPlan.methodsProcedures.criticalThinkingQuestioningGuidedPractice} />
+        <Section title="5. Independent or Group Work" items={lessonPlan.methodsProcedures.independentOrGroupWork} />
 
         <Section title="Assessment" items={lessonPlan.assessment} />
 
-        <View style={styles.keepTogether} break>
-          <Text style={styles.sectionTitle}>Rubric</Text>
-          <View style={styles.rubricTable}>
-            <View style={styles.rubricHeaderRow} wrap={false}>
-              <View style={styles.rubricCriterionCell}>
-                <Text style={styles.rubricHeaderText}>Criteria</Text>
-              </View>
-              {rubricLevels.map((label) => (
-                <View key={label} style={styles.rubricCell}>
-                  <Text style={styles.rubricHeaderText}>{label}</Text>
-                </View>
-              ))}
-            </View>
-            {lessonPlan.rubric.criteria.map((criterion) => (
-              <View key={criterion.criterion} style={styles.rubricRow} wrap={false}>
+        <Text style={styles.sectionTitle} minPresenceAhead={18}>
+          Rubric
+        </Text>
+        <View style={styles.rubricHeaderRow}>
+          <View style={styles.rubricCriterionCell}>
+            <Text style={styles.rubricHeaderText}>Criteria</Text>
+          </View>
+          <View style={styles.rubricLevelCell}>
+            <Text style={styles.rubricHeaderText}>Level</Text>
+          </View>
+          <View style={styles.rubricPointsCell}>
+            <Text style={styles.rubricHeaderText}>Pts</Text>
+          </View>
+          <View style={styles.rubricDescriptionCell}>
+            <Text style={styles.rubricHeaderText}>Description</Text>
+          </View>
+        </View>
+        {lessonPlan.rubric.criteria.flatMap((criterion) =>
+          rubricLevels.map((label) => {
+            const level = criterion.levels.find((item) => item.label === label);
+            return (
+              <View key={`${criterion.criterion}-${label}`} style={styles.rubricRow}>
                 <View style={styles.rubricCriterionCell}>
                   <Text style={styles.rubricHeaderText}>{criterion.criterion}</Text>
                 </View>
-                {rubricLevels.map((label) => {
-                  const level = criterion.levels.find((item) => item.label === label);
-                  return (
-                    <View key={`${criterion.criterion}-${label}`} style={styles.rubricCell}>
-                      <Text style={styles.rubricPoints}>{level?.points ?? 0} pts</Text>
-                      <Text style={styles.smallText}>{level?.description ?? ""}</Text>
-                    </View>
-                  );
-                })}
+                <View style={styles.rubricLevelCell}>
+                  <Text style={styles.rubricHeaderText}>{label}</Text>
+                </View>
+                <View style={styles.rubricPointsCell}>
+                  <Text style={styles.rubricPoints}>{level?.points ?? 0}</Text>
+                </View>
+                <View style={styles.rubricDescriptionCell}>
+                  <Text style={styles.smallText}>{level?.description ?? ""}</Text>
+                </View>
               </View>
-            ))}
-          </View>
-          <Text style={styles.rubricTotal}>
-            Total possible points: {lessonPlan.rubric.totalPossiblePoints}
-          </Text>
-        </View>
+            );
+          })
+        )}
+        <Text style={styles.rubricTotal}>
+          Total possible points: {lessonPlan.rubric.totalPossiblePoints}
+        </Text>
 
         <Section title="Reflection" items={lessonPlan.reflection} />
         <Section title="Enrichment Activities" items={lessonPlan.enrichmentActivities} />

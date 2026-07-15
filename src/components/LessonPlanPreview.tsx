@@ -44,6 +44,9 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
       <Section title="Behavioral Objectives" items={lessonPlan.specificBehavioralObjectives} />
       <Section title="Standards" items={lessonPlan.associatedStandards} />
       <Section title="Standards Sources" items={lessonPlan.standardsSources} />
+      {lessonPlan.providedResources.length > 0 ? (
+        <Section title="Provided Resources" items={lessonPlan.providedResources} />
+      ) : null}
       <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
       <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />
       <Section title="Interventive Techniques" items={lessonPlan.interventiveTechniques} />

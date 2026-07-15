@@ -22,6 +22,7 @@ const fieldLabels: Record<keyof LessonFormData, string> = {
   lesson: "Lesson",
   gradeLevel: "Grade Level",
   state: "State for K-12 Content Standards",
+  resources: "Resources",
   lessonDescription: "Lesson Description"
 };
 
@@ -32,6 +33,7 @@ const placeholders: Record<keyof LessonFormData, string> = {
   lesson: "Example: Reading Weather Maps",
   gradeLevel: "Example: Grade 4",
   state: "Example: Florida",
+  resources: "Paste helpful URLs, video links, textbook references, article links, or notes you want the lesson to use.",
   lessonDescription:
     "Describe what students should learn, the activity you have in mind, and the kind of learning experience you want to create."
 };
@@ -164,6 +166,34 @@ export default function Home() {
     return Object.keys(nextErrors).length === 0;
   }
 
+  async function handleResourceFiles(files: FileList | null) {
+    if (!files?.length) {
+      return;
+    }
+
+    const summaries = await Promise.all(
+      Array.from(files).map(async (file) => {
+        const header = `Uploaded file: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+        const canReadText =
+          file.type.startsWith("text/") ||
+          /\.(txt|md|csv|json|html|rtf)$/i.test(file.name);
+
+        if (!canReadText) {
+          return `${header}\nNote: File content was not extracted in the browser. Paste key excerpts or links above if you want the AI to use specific details from this file.`;
+        }
+
+        const text = await file.text();
+        const excerpt = text.replace(/\s+/g, " ").trim().slice(0, 3000);
+        return `${header}\nExcerpt: ${excerpt}`;
+      })
+    );
+
+    setForm((current) => ({
+      ...current,
+      resources: [current.resources, ...summaries].filter(Boolean).join("\n\n")
+    }));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setNotice(null);
@@ -250,6 +280,32 @@ export default function Home() {
                 {errors.lessonDescription}
               </p>
             ) : null}
+          </div>
+
+          <div>
+            <label htmlFor="field-resources" className="text-sm font-semibold text-[#28312c]">
+              Resources / URLs to include <span className="text-[#66736b]">(optional)</span>
+            </label>
+            <textarea
+              id="field-resources"
+              name="resources"
+              value={form.resources}
+              onChange={(event) => updateField("resources", event.target.value)}
+              placeholder={placeholders.resources}
+              rows={5}
+              className="mt-2 w-full resize-y rounded-md border border-[#cbd5cd] bg-white px-3 py-3 text-sm leading-6 text-[#1d2320] outline-none transition placeholder:text-[#8a968e] focus:border-[#244c5a] focus:ring-2 focus:ring-[#244c5a]/20"
+            />
+            <input
+              id="field-resourceFiles"
+              type="file"
+              multiple
+              accept=".txt,.md,.csv,.json,.html,.rtf,.pdf,.doc,.docx"
+              onChange={(event) => handleResourceFiles(event.target.files)}
+              className="mt-3 block w-full text-sm text-[#59635d] file:mr-3 file:rounded-md file:border file:border-[#b9c4bc] file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[#244c5a]"
+            />
+            <p className="mt-2 text-xs leading-5 text-[#66736b]">
+              URLs and pasted notes are sent to the generator. Text files are excerpted automatically; PDF and Word files are listed by name unless you paste key excerpts.
+            </p>
           </div>
 
           {notice ? (
