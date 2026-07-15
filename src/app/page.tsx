@@ -15,6 +15,15 @@ const LessonPlanPdfDownload = dynamic(() => import("@/components/LessonPlanPdf")
   )
 });
 
+const RubricPdfDownload = dynamic(() => import("@/components/RubricPdf"), {
+  ssr: false,
+  loading: () => (
+    <span className="inline-flex min-h-11 items-center rounded-md bg-[#e5ebe6] px-5 py-3 text-sm font-semibold text-[#244c5a]">
+      Loading rubric...
+    </span>
+  )
+});
+
 const fieldLabels: Record<keyof LessonFormData, string> = {
   name: "Name",
   subject: "Subject",
@@ -350,6 +359,7 @@ export default function Home() {
                 >
                   Regenerate Lesson Plan
                 </button>
+                <RubricPdfDownload lessonPlan={lessonPlan} />
                 <LessonPlanPdfDownload lessonPlan={lessonPlan} />
               </div>
             ) : null}
