@@ -216,7 +216,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#fbfaf7] print:bg-white">
       <section className="border-b-4 border-[#006b35] bg-white print:hidden">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-7 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-6 px-4 py-7 sm:px-6 lg:flex-row lg:items-center lg:justify-between 2xl:px-8">
           <div className="max-w-3xl">
             <img
               src="/famu-drs-logo.png"
@@ -247,7 +247,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[minmax(320px,440px)_1fr] lg:items-start print:block print:max-w-none print:p-0">
+      <div className="mx-auto grid max-w-[1600px] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(320px,440px)_minmax(0,1fr)] lg:items-start 2xl:px-8 print:block print:max-w-none print:p-0">
         <form id="lesson-form" onSubmit={handleSubmit} className="space-y-5 rounded-md border border-[#ead7c4] bg-white p-5 shadow-sm sm:p-6 print:hidden">
           <div>
             <h2 className="text-xl font-bold text-[#10251b]">Lesson details</h2>

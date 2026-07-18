@@ -150,7 +150,7 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-[#fbfaf7]">
       <section className="border-b-4 border-[#006b35] bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-7 sm:px-8">
+        <div className="mx-auto max-w-[1800px] px-4 py-7 sm:px-6 2xl:px-8">
           <img
             src="/famu-drs-logo.png"
             alt="Florida A&M University Developmental Research School"
@@ -168,7 +168,7 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:px-8">
+      <div className="mx-auto grid max-w-[1800px] gap-6 px-4 py-8 sm:px-6 2xl:px-8">
         <form onSubmit={handleAccessSubmit} className="rounded-md border border-[#ead7c4] bg-white p-5 shadow-sm">
           <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto] lg:items-end">
             <div>
@@ -225,7 +225,7 @@ export default function AdminPage() {
               <StatCard label="Subjects" value={stats.subjects} />
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(360px,0.75fr)_minmax(0,1.25fr)] xl:items-start">
+            <div className="grid gap-6 2xl:grid-cols-[minmax(320px,0.52fr)_minmax(760px,1.48fr)] 2xl:items-start">
               <section className="overflow-hidden rounded-md border border-[#ead7c4] bg-white shadow-sm">
                 <div className="border-b border-[#ead7c4] p-4">
                   <h2 className="text-lg font-bold text-[#10251b]">Submitted Lessons</h2>
@@ -233,14 +233,21 @@ export default function AdminPage() {
 
                 {lessons.length ? (
                   <div className="max-h-[720px] overflow-auto">
-                    <table className="min-w-full border-collapse text-left text-sm">
+                    <table className="w-full table-fixed border-collapse text-left text-xs">
+                      <colgroup>
+                        <col className="w-[32%]" />
+                        <col className="w-[12%]" />
+                        <col className="w-[22%]" />
+                        <col className="w-[20%]" />
+                        <col className="w-[14%]" />
+                      </colgroup>
                       <thead className="sticky top-0 bg-[#fff0df]">
                         <tr>
-                          <th className="border-b border-[#ead7c4] p-3 font-semibold">Lesson</th>
-                          <th className="border-b border-[#ead7c4] p-3 font-semibold">Teacher</th>
-                          <th className="border-b border-[#ead7c4] p-3 font-semibold">School</th>
-                          <th className="border-b border-[#ead7c4] p-3 font-semibold">Submitted</th>
-                          <th className="border-b border-[#ead7c4] p-3 font-semibold">Actions</th>
+                          <th className="border-b border-[#ead7c4] p-2 font-semibold">Lesson</th>
+                          <th className="border-b border-[#ead7c4] p-2 font-semibold">Teacher</th>
+                          <th className="border-b border-[#ead7c4] p-2 font-semibold">School</th>
+                          <th className="border-b border-[#ead7c4] p-2 font-semibold">Submitted</th>
+                          <th className="border-b border-[#ead7c4] p-2 font-semibold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -252,20 +259,20 @@ export default function AdminPage() {
                               selectedLesson?.id === lesson.id ? "bg-[#fff8ef]" : ""
                             }`}
                           >
-                            <td className="border-b border-[#f0e2d4] p-3 align-top">
-                              <p className="font-semibold text-[#10251b]">{lesson.lesson}</p>
-                              <p className="mt-1 text-xs text-[#59635d]">
+                            <td className="break-words border-b border-[#f0e2d4] p-2 align-top">
+                              <p className="font-semibold leading-5 text-[#10251b]">{lesson.lesson}</p>
+                              <p className="mt-1 text-[11px] leading-4 text-[#59635d]">
                                 {lesson.subject} - {lesson.grade_level} - {lesson.class_name}
                               </p>
                             </td>
-                            <td className="border-b border-[#f0e2d4] p-3 align-top">{lesson.teacher_name}</td>
-                            <td className="border-b border-[#f0e2d4] p-3 align-top">
+                            <td className="break-words border-b border-[#f0e2d4] p-2 align-top">{lesson.teacher_name}</td>
+                            <td className="border-b border-[#f0e2d4] p-2 align-top">
                               <SchoolBadge schoolId={lesson.school_id} />
                             </td>
-                            <td className="border-b border-[#f0e2d4] p-3 align-top text-xs text-[#59635d]">
+                            <td className="border-b border-[#f0e2d4] p-2 align-top text-[11px] leading-4 text-[#59635d]">
                               {formatDate(lesson.created_at)}
                             </td>
-                            <td className="border-b border-[#f0e2d4] p-3 align-top">
+                            <td className="border-b border-[#f0e2d4] p-2 align-top">
                               <button
                                 type="button"
                                 onClick={(event) => {
@@ -273,7 +280,7 @@ export default function AdminPage() {
                                   deleteLesson(lesson);
                                 }}
                                 disabled={deletingLessonId === lesson.id}
-                                className="inline-flex min-h-9 items-center justify-center rounded-md border border-[#d78b78] bg-white px-3 py-2 text-xs font-semibold text-[#8a2d23] transition hover:bg-[#fff7f2] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#b58b83]"
+                                className="inline-flex min-h-8 items-center justify-center rounded-md border border-[#d78b78] bg-white px-2 py-1.5 text-[11px] font-semibold text-[#8a2d23] transition hover:bg-[#fff7f2] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#b58b83]"
                               >
                                 {deletingLessonId === lesson.id ? "Deleting..." : "Delete"}
                               </button>
