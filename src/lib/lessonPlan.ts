@@ -1,25 +1,32 @@
-import type { LessonFormData, LessonPlan } from "./types";
+import { schoolOptions, type LessonFormData, type LessonPlan } from "./types";
 
 export const emptyForm: LessonFormData = {
+  schoolId: "",
   name: "",
+  className: "",
   subject: "",
   unit: "",
   lesson: "",
   gradeLevel: "",
-  state: "",
+  state: "Florida",
   resources: "",
   lessonDescription: ""
 };
 
 export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
+  const schoolName = schoolOptions.find((school) => school.id === form.schoolId)?.label ?? "FAMU DRS";
+
   return {
     heading: {
       title: "Lesson Plan",
       subtitle: "Classroom-ready lesson plan and rubric"
     },
     name: form.name,
+    schoolId: form.schoolId || "elementary",
+    schoolName,
+    className: form.className,
     gradeLevel: form.gradeLevel,
-    state: form.state,
+    state: "Florida",
     titleOfLesson: form.lesson,
     subject: form.subject,
     unit: form.unit,
@@ -29,10 +36,10 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
       "Given teacher modeling, guided practice, and classroom materials, students will explain or demonstrate the key lesson concept with at least 80% accuracy."
     ],
     associatedStandards: [
-      `Suggested ${form.state} standards alignment: Select grade-level standards that match the lesson topic and verify exact standard codes and wording with the official state education agency or district source.`
+      "Suggested Florida standards alignment: Select grade-level standards that match the lesson topic and verify exact standard codes and wording with CPALMS, the Florida Department of Education, or district curriculum guidance."
     ],
     standardsSources: [
-      `Official ${form.state} education agency or standards website`
+      "CPALMS and the Florida Department of Education standards resources"
     ],
     providedResources: form.resources
       ? form.resources.split("\n").filter((resource) => resource.trim().length > 0)

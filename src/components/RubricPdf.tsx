@@ -59,6 +59,8 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
       const form = pdfDoc.getForm();
       const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      const logoBytes = await fetch("/famu-drs-logo.png").then((response) => response.arrayBuffer());
+      const logoImage = await pdfDoc.embedPng(logoBytes);
       const fileName = `${cleanPart(lessonPlan.titleOfLesson || lessonPlan.lesson, "Rubric")}_Fillable_Rubric.pdf`;
 
       const pageWidth = 792;
@@ -67,9 +69,10 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
       const tableWidth = pageWidth - margin * 2;
       const criterionWidth = 130;
       const levelWidth = (tableWidth - criterionWidth) / 4;
-      const headerFill = rgb(0.93, 0.96, 0.94);
+      const headerFill = rgb(1, 0.94, 0.87);
       const borderColor = rgb(0.58, 0.65, 0.7);
-      const darkText = rgb(0.09, 0.22, 0.26);
+      const darkText = rgb(0.0, 0.42, 0.21);
+      const orangeText = rgb(0.96, 0.51, 0.13);
       const bodyText = rgb(0.12, 0.16, 0.2);
 
       let page = pdfDoc.addPage([pageWidth, pageHeight]);
@@ -125,15 +128,23 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
       }
 
       function drawHeader() {
-        drawText("Rubric", margin, y - 6, 19, true, darkText);
-        drawText(`${lessonPlan.titleOfLesson} - ${lessonPlan.subject} - ${lessonPlan.gradeLevel}`, margin, y - 23, 9);
+        page.drawImage(logoImage, {
+          x: margin,
+          y: y - 45,
+          width: 250,
+          height: 50
+        });
+        drawText("FAMU DRS instructional planning pilot", margin, y - 58, 8.5, true, orangeText);
+        drawText("Fillable Rubric", margin, y - 78, 19, true, darkText);
+        drawText(`${lessonPlan.schoolName} - ${lessonPlan.className} - ${lessonPlan.gradeLevel}`, margin, y - 95, 9);
+        drawText(`${lessonPlan.titleOfLesson} - ${lessonPlan.subject}`, margin, y - 107, 8.5);
         page.drawLine({
-          start: { x: margin, y: y - 34 },
-          end: { x: pageWidth - margin, y: y - 34 },
-          thickness: 1,
+          start: { x: margin, y: y - 118 },
+          end: { x: pageWidth - margin, y: y - 118 },
+          thickness: 1.4,
           color: darkText
         });
-        y -= 52;
+        y -= 136;
 
         const infoWidth = (tableWidth - 24) / 4;
         const labels = ["Student Name", "Teacher / Evaluator", "Date", "Total Score"];
@@ -230,11 +241,11 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
   }
 
   return (
-    <button
+      <button
       type="button"
       onClick={handleDownload}
       disabled={isPreparing}
-      className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#244c5a] bg-white px-5 py-3 text-sm font-semibold text-[#244c5a] shadow-sm transition hover:bg-[#f1f5f2] focus:outline-none focus:ring-2 focus:ring-[#244c5a] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#879894]"
+      className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#f5b06b] bg-white px-5 py-3 text-sm font-semibold text-[#006b35] shadow-sm transition hover:bg-[#fff8ef] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#879894]"
     >
       {isPreparing ? "Preparing rubric..." : "Download Fillable Rubric PDF"}
     </button>

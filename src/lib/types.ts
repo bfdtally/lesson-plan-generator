@@ -1,5 +1,20 @@
+export type SchoolId = "elementary" | "middle" | "high";
+
+export type SchoolOption = {
+  id: SchoolId;
+  label: string;
+};
+
+export const schoolOptions: SchoolOption[] = [
+  { id: "elementary", label: "FAMU DRS Elementary School" },
+  { id: "middle", label: "FAMU DRS Middle School" },
+  { id: "high", label: "FAMU DRS High School" }
+];
+
 export type LessonFormData = {
+  schoolId: SchoolId | "";
   name: string;
+  className: string;
   subject: string;
   unit: string;
   lesson: string;
@@ -26,6 +41,9 @@ export type LessonPlan = {
     subtitle: string;
   };
   name: string;
+  schoolId: SchoolId;
+  schoolName: string;
+  className: string;
   gradeLevel: string;
   state: string;
   titleOfLesson: string;
@@ -56,12 +74,33 @@ export type LessonPlan = {
   enrichmentActivities: string[];
 };
 
+export type AdminLessonRow = {
+  id: string;
+  school_id: SchoolId;
+  school_name: string;
+  teacher_user_id: string | null;
+  teacher_name: string;
+  class_name: string;
+  subject: string;
+  unit: string;
+  lesson: string;
+  grade_level: string;
+  standards_state: string;
+  lesson_description: string;
+  resources: string | null;
+  lesson_plan: LessonPlan;
+  status: "draft" | "submitted" | "reviewed" | "archived";
+  created_at: string;
+  updated_at: string;
+};
+
 export const requiredFields: Array<keyof LessonFormData> = [
+  "schoolId",
   "name",
+  "className",
   "subject",
   "unit",
   "lesson",
   "gradeLevel",
-  "state",
   "lessonDescription"
 ];

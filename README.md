@@ -1,6 +1,11 @@
-# Lesson Plan Generator
+# FAMU DRS Lesson Plan Generator
 
-A simple Next.js app for teachers, tutors, homeschool educators, and education students to generate complete standards-aligned lesson plans.
+Pilot Next.js app for FAMU DRS teachers to generate Florida standards-aligned lesson plans and save submissions for administrative review.
+
+## Routes
+
+- `/` - teacher lesson plan generator
+- `/admin` - password-protected pilot dashboard for reviewing saved lesson plans
 
 ## Setup
 
@@ -10,31 +15,40 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Add your OpenAI API key to `.env.local` as `OPENAI_API_KEY`. The key is used only by the server-side API route and is never exposed to browser code.
+## Required Environment Variables
 
-## Features
+```text
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+ADMIN_ACCESS_CODE=
+```
 
-- Next.js App Router
-- React and TypeScript
-- Tailwind CSS
-- Server-side API route using the OpenAI official JavaScript SDK and Responses API
-- Server-side standards lookup before lesson generation
-- Required form validation
-- Clean lesson-plan preview
-- PDF download with `@react-pdf/renderer`
+`SUPABASE_SERVICE_ROLE_KEY` must stay server-side only. Do not expose it in browser code or prefix it with `NEXT_PUBLIC_`.
+
+## Supabase
+
+Run this SQL in the Supabase SQL Editor before expecting lessons to save:
+
+```text
+supabase/famu_drs_schema.sql
+```
+
+The schema creates:
+
+- `schools`
+- `profiles`
+- `lesson_plans`
 
 ## Deploy on Render
 
-Deploy this app as a Render Web Service, not a Static Site, because lesson generation runs through the server-side API route.
+Deploy as a Render Web Service, not a Static Site.
 
-1. Push this app folder to a GitHub repo.
-2. In Render, create a new Web Service from that repo.
-3. Use these settings if Render does not read `render.yaml` automatically:
-   - Runtime: Node
-   - Build Command: `npm install && npm run build`
-   - Start Command: `npm run start -- -p $PORT`
-4. Add environment variables in Render:
-   - `OPENAI_API_KEY`
-   - `OPENAI_MODEL` optional, defaults to `gpt-4.1-mini`
-   - `OPENAI_SEARCH_MODEL` optional, defaults to `OPENAI_MODEL`
-5. Deploy, then share the Render URL with users.
+Suggested settings:
+
+- Runtime: Node
+- Build Command: `npm install && npm run build`
+- Start Command: `npm run start -- -p $PORT`
+
+After changing environment variables, use **Save, rebuild, and deploy**.

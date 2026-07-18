@@ -2,6 +2,7 @@
 
 import {
   Document,
+  Image,
   Page,
   PDFDownloadLink,
   StyleSheet,
@@ -19,13 +20,24 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 10,
-    borderBottom: "1 solid #244c5a",
+    borderBottom: "2 solid #006b35",
     paddingBottom: 12
+  },
+  brandLogo: {
+    width: 250,
+    marginBottom: 8
+  },
+  brandKicker: {
+    fontSize: 8.5,
+    fontWeight: 700,
+    color: "#f58220",
+    marginBottom: 4,
+    textTransform: "uppercase"
   },
   title: {
     fontSize: 18,
     fontWeight: 700,
-    color: "#183942",
+    color: "#10251b",
     marginBottom: 5
   },
   subtitle: {
@@ -35,20 +47,21 @@ const styles = StyleSheet.create({
   detailsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    border: "1 solid #cbd2d9",
+    border: "1 solid #ead7c4",
+    borderLeft: "4 solid #f58220",
     marginBottom: 8
   },
   detailCell: {
     width: "50%",
     padding: 4,
-    borderBottom: "1 solid #e4e7eb"
+    borderBottom: "1 solid #ead7c4"
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: 700,
     marginTop: 8,
     marginBottom: 3,
-    color: "#244c5a"
+    color: "#006b35"
   },
   line: {
     marginBottom: 3
@@ -72,7 +85,7 @@ const styles = StyleSheet.create({
   },
   rubricHeaderRow: {
     flexDirection: "row",
-    backgroundColor: "#edf3ef",
+    backgroundColor: "#fff0df",
     borderTop: "1 solid #9aa5b1",
     borderLeft: "1 solid #9aa5b1",
     marginTop: 2
@@ -96,7 +109,7 @@ const styles = StyleSheet.create({
   rubricHeaderText: {
     fontSize: 8.5,
     fontWeight: 700,
-    color: "#183942"
+    color: "#10251b"
   },
   rubricPoints: {
     fontSize: 8.5,
@@ -151,12 +164,16 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
     <Document>
       <Page size="LETTER" style={styles.page}>
         <View style={styles.header}>
+          <Image src="/famu-drs-logo.png" style={styles.brandLogo} />
+          <Text style={styles.brandKicker}>FAMU DRS instructional planning pilot</Text>
           <Text style={styles.title}>{lessonPlan.heading.title}</Text>
           <Text style={styles.subtitle}>{lessonPlan.heading.subtitle}</Text>
         </View>
 
         <View style={styles.detailsGrid}>
-          <Detail label="Name" value={lessonPlan.name} />
+          <Detail label="School" value={lessonPlan.schoolName} />
+          <Detail label="Teacher" value={lessonPlan.name} />
+          <Detail label="Class / Course" value={lessonPlan.className} />
           <Detail label="Subject" value={lessonPlan.subject} />
           <Detail label="Unit" value={lessonPlan.unit} />
           <Detail label="Lesson" value={lessonPlan.lesson} />
@@ -240,7 +257,7 @@ export default function LessonPlanPdfDownload({ lessonPlan }: { lessonPlan: Less
 
   return (
     <PDFDownloadLink
-      className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#244c5a] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#183942] focus:outline-none focus:ring-2 focus:ring-[#244c5a] focus:ring-offset-2"
+      className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#006b35] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#00552a] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2"
       document={<LessonPlanPdfDocument lessonPlan={lessonPlan} />}
       fileName={pdfName}
     >

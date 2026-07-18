@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import { requiredFields, type LessonFormData, type LessonPlan } from "@/lib/types";
+import { saveGeneratedLesson } from "@/lib/supabaseAdmin";
+import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan } from "@/lib/types";
 
 const lessonPlanSchema = {
   type: "object",
@@ -8,6 +9,9 @@ const lessonPlanSchema = {
   required: [
     "heading",
     "name",
+    "schoolId",
+    "schoolName",
+    "className",
     "gradeLevel",
     "state",
     "titleOfLesson",
@@ -39,6 +43,9 @@ const lessonPlanSchema = {
       }
     },
     name: { type: "string" },
+    schoolId: { type: "string", enum: ["elementary", "middle", "high"] },
+    schoolName: { type: "string" },
+    className: { type: "string" },
     gradeLevel: { type: "string" },
     state: { type: "string" },
     titleOfLesson: { type: "string" },
@@ -113,6 +120,17 @@ function validateForm(form: LessonFormData) {
   return requiredFields.filter((field) => !form[field]?.trim());
 }
 
+function normalizeForm(form: LessonFormData): LessonFormData {
+  return {
+    ...form,
+    state: "Florida"
+  };
+}
+
+function schoolNameFor(form: LessonFormData) {
+  return schoolOptions.find((school) => school.id === form.schoolId)?.label ?? "FAMU DRS";
+}
+
 const rubricLabels = ["Excellent", "Proficient", "Developing", "Beginning"] as const;
 
 function textArray(value: unknown) {
@@ -127,6 +145,9 @@ function hasAllRequiredSections(lessonPlan: LessonPlan) {
     lessonPlan.heading?.title &&
       lessonPlan.heading?.subtitle &&
       lessonPlan.name &&
+      lessonPlan.schoolId &&
+      lessonPlan.schoolName &&
+      lessonPlan.className &&
       lessonPlan.gradeLevel &&
       lessonPlan.state &&
       lessonPlan.titleOfLesson &&
@@ -216,7 +237,7 @@ Return concise notes with:
 }
 
 export async function POST(request: Request) {
-  const form = (await request.json()) as LessonFormData;
+  const form = normalizeForm((await request.json()) as LessonFormData);
   const missingFields = validateForm(form);
 
   if (missingFields.length > 0) {
@@ -254,7 +275,7 @@ export async function POST(request: Request) {
         {
           role: "system",
           content:
-            "You create complete, practical, classroom-appropriate lesson plans for teachers, parents, tutors, homeschool educators, and education students. Return only valid structured JSON that matches the provided schema. Never return markdown or prose outside the JSON. Keep language clear, specific, teacher-friendly, and ready to use in a real classroom."
+            "You create complete, practical, classroom-appropriate lesson plans for FAMU DRS teachers. Return only valid structured JSON that matches the provided schema. Never return markdown or prose outside the JSON. Keep language clear, specific, teacher-friendly, and ready to use in a real elementary, middle, or high school classroom."
         },
         {
           role: "user",
@@ -264,8 +285,11 @@ Lesson Plan
 Classroom-ready lesson plan and rubric
 
 Name: ${form.name}
+School: ${schoolNameFor(form)}
+School ID: ${form.schoolId}
+Class / Course: ${form.className}
 Grade Level: ${form.gradeLevel}
-State for K-12 Content Standards: ${form.state}
+State for K-12 Content Standards: Florida
 Title of Lesson: ${form.lesson}
 Subject: ${form.subject}
 Unit: ${form.unit}
@@ -283,12 +307,12 @@ ${standardsContext}
 Requirements:
 - Always include Goals.
 - Always include Behavioral Objectives with measurable action verbs.
-- Always identify the likely official K-12 content standards framework for ${form.state} and this subject area. For example, Florida science and social studies standards may be found through CPALMS, while Florida math and ELA use B.E.S.T. Standards.
-- Always include Standards aligned to ${form.state}, the grade level, subject, unit, and lesson.
+- Always identify the likely official Florida K-12 content standards framework for this subject area. Florida science and social studies standards may be found through CPALMS, while Florida math and ELA use B.E.S.T. Standards.
+- Always include Standards aligned to Florida, the grade level, subject, unit, and lesson.
 - Use the live standards lookup notes above to select the most relevant standards.
 - Include the most relevant standard codes, strands, benchmarks, or concise descriptions when the lookup supports them.
 - Always include standardsSources with official source names and URLs when available.
-- If exact standard codes, source names, or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with the official ${form.state} education agency, district, or standards website.
+- If exact standard codes, source names, or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with CPALMS, the Florida Department of Education, or FAMU DRS/district curriculum guidance.
 - Always include Materials, including low-cost classroom materials when possible.
 - If teacher-provided resources are included, use them to enrich the lesson where relevant.
 - Always include providedResources as a concise list of resources, URLs, uploaded file names, or excerpts the lesson used. Use an empty array if none were provided.
@@ -318,7 +342,14 @@ Requirements:
     const lessonPlan = JSON.parse(response.output_text) as LessonPlan;
     assertCompleteLessonPlan(lessonPlan);
 
-    return NextResponse.json({ lessonPlan });
+    let savedLessonId: string | null = null;
+    try {
+      savedLessonId = await saveGeneratedLesson({ form, lessonPlan });
+    } catch (saveError) {
+      console.error("Lesson save failed:", saveError);
+    }
+
+    return NextResponse.json({ lessonPlan, savedLessonId });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
