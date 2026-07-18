@@ -1,4 +1,5 @@
 import type { LessonPlan } from "@/lib/types";
+import { getRubricLevel, rubricLevelOrder } from "@/lib/rubric";
 
 function Section({ title, items }: { title: string; items: string[] }) {
   return (
@@ -81,27 +82,35 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
             Total possible points: {lessonPlan.rubric.totalPossiblePoints}
           </p>
         </div>
-        <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full border-collapse text-left text-sm print:text-xs">
+        <div className="mt-4 max-w-full overflow-hidden">
+          <table className="w-full table-fixed border-collapse text-left text-[11px] leading-5 print:text-[9px]">
+            <colgroup>
+              <col className="w-[18%]" />
+              <col className="w-[20.5%]" />
+              <col className="w-[20.5%]" />
+              <col className="w-[20.5%]" />
+              <col className="w-[20.5%]" />
+            </colgroup>
             <thead>
               <tr className="bg-[#fff0df]">
-                <th className="border border-[#ead7c4] p-3 font-semibold">Criteria</th>
-                <th className="border border-[#ead7c4] p-3 font-semibold">Excellent / Points</th>
-                <th className="border border-[#ead7c4] p-3 font-semibold">Proficient / Points</th>
-                <th className="border border-[#ead7c4] p-3 font-semibold">Developing / Points</th>
-                <th className="border border-[#ead7c4] p-3 font-semibold">Beginning / Points</th>
+                <th className="break-words border border-[#ead7c4] p-2 font-semibold hyphens-auto">Criteria</th>
+                {rubricLevelOrder.map((label) => (
+                  <th key={label} className="break-words border border-[#ead7c4] p-2 font-semibold hyphens-auto">
+                    {label} / Points
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {lessonPlan.rubric.criteria.map((criterion) => (
                 <tr key={criterion.criterion}>
-                  <th className="border border-[#ead7c4] p-3 align-top font-semibold">{criterion.criterion}</th>
-                  {["Excellent", "Proficient", "Developing", "Beginning"].map((label) => {
-                    const level = criterion.levels.find((item) => item.label === label);
+                  <th className="break-words border border-[#ead7c4] p-2 align-top font-semibold hyphens-auto">{criterion.criterion}</th>
+                  {rubricLevelOrder.map((label) => {
+                    const level = getRubricLevel(criterion, label);
                     return (
-                      <td key={`${criterion.criterion}-${label}`} className="border border-[#ead7c4] p-3 align-top">
+                      <td key={`${criterion.criterion}-${label}`} className="break-words border border-[#ead7c4] p-2 align-top hyphens-auto">
                         <span className="font-semibold">{level?.points ?? 0} pts</span>
-                        <p className="mt-1 leading-6 text-[#303833]">{level?.description}</p>
+                        <p className="mt-1 text-[#303833]">{level?.description}</p>
                       </td>
                     );
                   })}

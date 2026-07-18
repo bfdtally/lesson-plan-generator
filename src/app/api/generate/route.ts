@@ -100,7 +100,7 @@ const lessonPlanSchema = {
                   additionalProperties: false,
                   required: ["label", "points", "description"],
                   properties: {
-                    label: { type: "string", enum: ["Excellent", "Proficient", "Developing", "Beginning"] },
+                    label: { type: "string", enum: ["Favorable", "Acceptable", "Marginal", "Unacceptable"] },
                     points: { type: "number" },
                     description: { type: "string" }
                   }
@@ -131,7 +131,7 @@ function schoolNameFor(form: LessonFormData) {
   return schoolOptions.find((school) => school.id === form.schoolId)?.label ?? "FAMU DRS";
 }
 
-const rubricLabels = ["Excellent", "Proficient", "Developing", "Beginning"] as const;
+const rubricLabels = ["Favorable", "Acceptable", "Marginal", "Unacceptable"] as const;
 
 function textArray(value: unknown) {
   return Array.isArray(value)
@@ -324,7 +324,7 @@ Requirements:
 - Always include Reflection prompts.
 - Always include at least two Enrichment Activities.
 - Always include a rubric with exactly 4 criteria.
-- Each rubric criterion must include Excellent, Proficient, Developing, and Beginning.
+- Each rubric criterion must include Favorable, Acceptable, Marginal, and Unacceptable as the four FAMU performance levels.
 - Each rubric performance level must include points and a clear learner-friendly description.
 - Include total possible points for the rubric.`
         }

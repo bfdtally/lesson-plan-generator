@@ -75,10 +75,10 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
       criteria: ["Understanding", "Application", "Participation", "Communication"].map((criterion) => ({
         criterion,
         levels: [
-          { label: "Excellent", points: 4, description: "Shows strong understanding and completes the task with clear, accurate details." },
-          { label: "Proficient", points: 3, description: "Shows solid understanding and completes most of the task accurately." },
-          { label: "Developing", points: 2, description: "Shows partial understanding and needs some support or more complete details." },
-          { label: "Beginning", points: 1, description: "Shows limited understanding and needs significant support to complete the task." }
+          { label: "Favorable", points: 4, description: "Shows strong understanding and completes the task with clear, accurate details." },
+          { label: "Acceptable", points: 3, description: "Shows solid understanding and completes most of the task accurately." },
+          { label: "Marginal", points: 2, description: "Shows partial understanding and needs some support or more complete details." },
+          { label: "Unacceptable", points: 1, description: "Shows limited understanding and needs significant support to complete the task." }
         ]
       }))
     },

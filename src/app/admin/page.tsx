@@ -225,7 +225,7 @@ export default function AdminPage() {
               <StatCard label="Subjects" value={stats.subjects} />
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(420px,0.95fr)_1.05fr] xl:items-start">
+            <div className="grid gap-6 xl:grid-cols-[minmax(360px,0.75fr)_minmax(0,1.25fr)] xl:items-start">
               <section className="overflow-hidden rounded-md border border-[#ead7c4] bg-white shadow-sm">
                 <div className="border-b border-[#ead7c4] p-4">
                   <h2 className="text-lg font-bold text-[#10251b]">Submitted Lessons</h2>

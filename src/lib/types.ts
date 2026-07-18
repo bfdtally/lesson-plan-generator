@@ -25,7 +25,15 @@ export type LessonFormData = {
 };
 
 export type RubricLevel = {
-  label: "Excellent" | "Proficient" | "Developing" | "Beginning";
+  label:
+    | "Favorable"
+    | "Acceptable"
+    | "Marginal"
+    | "Unacceptable"
+    | "Excellent"
+    | "Proficient"
+    | "Developing"
+    | "Beginning";
   points: number;
   description: string;
 };

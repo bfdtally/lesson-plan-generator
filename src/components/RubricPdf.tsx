@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import type { LessonPlan } from "@/lib/types";
+import { getRubricLevel, rubricLevelOrder } from "@/lib/rubric";
 
-const levels = ["Excellent", "Proficient", "Developing", "Beginning"] as const;
+const levels = rubricLevelOrder;
 
 function cleanPart(value: string, fallback: string) {
   return (value || fallback)
@@ -179,7 +180,7 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
 
       lessonPlan.rubric.criteria.forEach((criterion, criterionIndex) => {
         const lineCounts = levels.map((label) => {
-          const level = criterion.levels.find((item) => item.label === label);
+          const level = getRubricLevel(criterion, label);
           return wrapText(level?.description ?? "", levelWidth - 32, regularFont, 7.1).length + 1;
         });
         const criterionLines = wrapText(criterion.criterion, criterionWidth - 12, boldFont, 7.2).length;
@@ -194,7 +195,7 @@ export default function RubricPdfDownload({ lessonPlan }: { lessonPlan: LessonPl
 
         levels.forEach((label, levelIndex) => {
           const x = margin + criterionWidth + levelIndex * levelWidth;
-          const level = criterion.levels.find((item) => item.label === label);
+          const level = getRubricLevel(criterion, label);
           drawCell(x, y, levelWidth, rowHeight);
 
           const checkBox = form.createCheckBox(`criteria_${criterionIndex}_${label.toLowerCase()}_selected`);

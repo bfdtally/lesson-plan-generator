@@ -10,6 +10,7 @@ import {
   View
 } from "@react-pdf/renderer";
 import type { LessonPlan } from "@/lib/types";
+import { getRubricLevel, rubricLevelOrder } from "@/lib/rubric";
 
 const styles = StyleSheet.create({
   page: {
@@ -157,8 +158,6 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
-const rubricLevels = ["Excellent", "Proficient", "Developing", "Beginning"] as const;
-
 export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }) {
   return (
     <Document>
@@ -211,7 +210,7 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
           <View style={styles.rubricCriterionCell}>
             <Text style={styles.rubricHeaderText}>Criteria</Text>
           </View>
-          {rubricLevels.map((label) => (
+          {rubricLevelOrder.map((label) => (
             <View key={label} style={styles.rubricCell}>
               <Text style={styles.rubricHeaderText}>{label} / Points</Text>
             </View>
@@ -222,8 +221,8 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
             <View style={styles.rubricCriterionCell}>
               <Text style={styles.rubricHeaderText}>{criterion.criterion}</Text>
             </View>
-            {rubricLevels.map((label) => {
-              const level = criterion.levels.find((item) => item.label === label);
+            {rubricLevelOrder.map((label) => {
+              const level = getRubricLevel(criterion, label);
               return (
                 <View key={`${criterion.criterion}-${label}`} style={styles.rubricCell}>
                   <Text style={styles.rubricPoints}>{level?.points ?? 0} pts</Text>
