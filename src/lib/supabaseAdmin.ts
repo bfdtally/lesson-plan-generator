@@ -87,3 +87,20 @@ export async function listSavedLessons({ schoolId }: { schoolId?: SchoolId | "al
 
   return (data ?? []) as AdminLessonRow[];
 }
+
+export async function deleteSavedLesson({ lessonId }: { lessonId: string }) {
+  const supabase = getSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  const { error } = await supabase
+    .from("lesson_plans")
+    .delete()
+    .eq("id", lessonId);
+
+  if (error) {
+    throw error;
+  }
+}

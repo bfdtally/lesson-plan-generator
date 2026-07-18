@@ -42,6 +42,7 @@ export default function AdminPage() {
   const [lessons, setLessons] = useState<AdminLessonRow[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const selectedLesson = lessons.find((lesson) => lesson.id === selectedLessonId) ?? lessons[0] ?? null;
@@ -99,6 +100,50 @@ export default function AdminPage() {
     setSchoolFilter(value);
     if (savedCode) {
       await loadLessons(savedCode, value);
+    }
+  }
+
+  async function deleteLesson(lesson: AdminLessonRow) {
+    if (!savedCode) {
+      setError("Enter the admin access code before deleting a lesson.");
+      return;
+    }
+
+    const shouldDelete = window.confirm(
+      `Delete "${lesson.lesson}" by ${lesson.teacher_name}? This cannot be undone.`
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    setDeletingLessonId(lesson.id);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/lessons/${lesson.id}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-code": savedCode
+        }
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not delete saved lesson.");
+      }
+
+      setLessons((currentLessons) => {
+        const nextLessons = currentLessons.filter((item) => item.id !== lesson.id);
+        if (selectedLessonId === lesson.id) {
+          setSelectedLessonId(nextLessons[0]?.id ?? null);
+        }
+        return nextLessons;
+      });
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Could not delete saved lesson.");
+    } finally {
+      setDeletingLessonId(null);
     }
   }
 
@@ -195,6 +240,7 @@ export default function AdminPage() {
                           <th className="border-b border-[#ead7c4] p-3 font-semibold">Teacher</th>
                           <th className="border-b border-[#ead7c4] p-3 font-semibold">School</th>
                           <th className="border-b border-[#ead7c4] p-3 font-semibold">Submitted</th>
+                          <th className="border-b border-[#ead7c4] p-3 font-semibold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -218,6 +264,19 @@ export default function AdminPage() {
                             </td>
                             <td className="border-b border-[#f0e2d4] p-3 align-top text-xs text-[#59635d]">
                               {formatDate(lesson.created_at)}
+                            </td>
+                            <td className="border-b border-[#f0e2d4] p-3 align-top">
+                              <button
+                                type="button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  deleteLesson(lesson);
+                                }}
+                                disabled={deletingLessonId === lesson.id}
+                                className="inline-flex min-h-9 items-center justify-center rounded-md border border-[#d78b78] bg-white px-3 py-2 text-xs font-semibold text-[#8a2d23] transition hover:bg-[#fff7f2] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#b58b83]"
+                              >
+                                {deletingLessonId === lesson.id ? "Deleting..." : "Delete"}
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -244,7 +303,17 @@ export default function AdminPage() {
                             Submitted by {selectedLesson.teacher_name} for {selectedLesson.class_name} on {formatDate(selectedLesson.created_at)}
                           </p>
                         </div>
-                        <SchoolBadge schoolId={selectedLesson.school_id} />
+                        <div className="flex flex-wrap items-center gap-3">
+                          <SchoolBadge schoolId={selectedLesson.school_id} />
+                          <button
+                            type="button"
+                            onClick={() => deleteLesson(selectedLesson)}
+                            disabled={deletingLessonId === selectedLesson.id}
+                            className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#d78b78] bg-white px-4 py-2 text-sm font-semibold text-[#8a2d23] transition hover:bg-[#fff7f2] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#b58b83]"
+                          >
+                            {deletingLessonId === selectedLesson.id ? "Deleting..." : "Delete Lesson"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <LessonPlanPreview lessonPlan={selectedLesson.lesson_plan} />
