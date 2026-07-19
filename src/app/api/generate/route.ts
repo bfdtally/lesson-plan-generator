@@ -23,6 +23,7 @@ const lessonPlanSchema = {
     "associatedStandards",
     "standardsSources",
     "providedResources",
+    "handsOnProject",
     "materialsResourcesEquipment",
     "preventativeTechniques",
     "interventiveTechniques",
@@ -57,6 +58,28 @@ const lessonPlanSchema = {
     associatedStandards: { type: "array", items: { type: "string" } },
     standardsSources: { type: "array", items: { type: "string" } },
     providedResources: { type: "array", items: { type: "string" } },
+    handsOnProject: {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "title",
+        "overview",
+        "teacherSetup",
+        "studentTask",
+        "deliverables",
+        "groupingAndTiming",
+        "differentiationSupport"
+      ],
+      properties: {
+        title: { type: "string" },
+        overview: { type: "string" },
+        teacherSetup: { type: "array", items: { type: "string" } },
+        studentTask: { type: "array", items: { type: "string" } },
+        deliverables: { type: "array", items: { type: "string" } },
+        groupingAndTiming: { type: "array", items: { type: "string" } },
+        differentiationSupport: { type: "array", items: { type: "string" } }
+      }
+    },
     materialsResourcesEquipment: { type: "array", items: { type: "string" } },
     preventativeTechniques: { type: "array", items: { type: "string" } },
     interventiveTechniques: { type: "array", items: { type: "string" } },
@@ -141,6 +164,7 @@ function textArray(value: unknown) {
 
 function hasAllRequiredSections(lessonPlan: LessonPlan) {
   const procedures = lessonPlan.methodsProcedures;
+  const project = lessonPlan.handsOnProject;
   return Boolean(
     lessonPlan.heading?.title &&
       lessonPlan.heading?.subtitle &&
@@ -158,6 +182,14 @@ function hasAllRequiredSections(lessonPlan: LessonPlan) {
       textArray(lessonPlan.specificBehavioralObjectives).length &&
       textArray(lessonPlan.associatedStandards).length &&
       textArray(lessonPlan.standardsSources).length &&
+      project &&
+      project.title &&
+      project.overview &&
+      textArray(project.teacherSetup).length &&
+      textArray(project.studentTask).length &&
+      textArray(project.deliverables).length &&
+      textArray(project.groupingAndTiming).length &&
+      textArray(project.differentiationSupport).length &&
       textArray(lessonPlan.materialsResourcesEquipment).length &&
       textArray(lessonPlan.preventativeTechniques).length &&
       textArray(lessonPlan.interventiveTechniques).length &&
@@ -317,6 +349,12 @@ Requirements:
 - If teacher-provided resources are included, use them to enrich the lesson where relevant.
 - Always include providedResources as a concise list of resources, URLs, uploaded file names, or excerpts the lesson used. Use an empty array if none were provided.
 - Do not invent resource URLs. Only include URLs that were provided by the user or found in the live standards lookup notes.
+- Always include a prominent handsOnProject section.
+- If the teacher describes a hands-on project, activity, model, lab, performance task, or classroom project in the Lesson Description or provided resources, preserve that idea and expand it into a complete classroom-ready project.
+- If the teacher does not provide a hands-on project idea, create a practical, low-cost hands-on project aligned to the lesson, grade level, Florida standards, and available classroom materials.
+- The handsOnProject must include a specific title, concise overview, teacher setup steps, student task steps, student deliverables, grouping and timing guidance, and differentiation/support ideas.
+- The project must be specific enough that a teacher could use it tomorrow without needing to invent the main activity.
+- Connect the hands-on project clearly to the procedures, assessment, materials, and at least one rubric criterion.
 - Always include Preventative Techniques.
 - Always include Interventive Techniques.
 - Always include Step-by-step Procedures with Attention Grabber, Introduction of the Lesson, Teacher Modeling / Direct Instruction, Critical Thinking Questioning / Guided Practice, and Independent or Group Work.

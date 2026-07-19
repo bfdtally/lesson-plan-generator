@@ -43,6 +43,16 @@ export type RubricCriterion = {
   levels: RubricLevel[];
 };
 
+export type HandsOnProject = {
+  title: string;
+  overview: string;
+  teacherSetup: string[];
+  studentTask: string[];
+  deliverables: string[];
+  groupingAndTiming: string[];
+  differentiationSupport: string[];
+};
+
 export type LessonPlan = {
   heading: {
     title: string;
@@ -63,6 +73,7 @@ export type LessonPlan = {
   associatedStandards: string[];
   standardsSources: string[];
   providedResources: string[];
+  handsOnProject?: HandsOnProject;
   materialsResourcesEquipment: string[];
   preventativeTechniques: string[];
   interventiveTechniques: string[];

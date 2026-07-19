@@ -122,6 +122,26 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 700,
     textAlign: "right"
+  },
+  projectBox: {
+    marginTop: 8,
+    marginBottom: 4,
+    padding: 8,
+    borderLeft: "3 solid #f58220",
+    backgroundColor: "#fff8ef"
+  },
+  projectKicker: {
+    fontSize: 7.5,
+    fontWeight: 700,
+    color: "#f58220",
+    textTransform: "uppercase",
+    marginBottom: 3
+  },
+  projectTitle: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: "#006b35",
+    marginBottom: 4
   }
 });
 
@@ -158,6 +178,23 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
+function HandsOnProjectSection({ project }: { project: NonNullable<LessonPlan["handsOnProject"]> }) {
+  return (
+    <>
+      <View style={styles.projectBox} wrap={false}>
+        <Text style={styles.projectKicker}>Featured classroom project</Text>
+        <Text style={styles.projectTitle}>Hands-on Project: {project.title}</Text>
+        <Text style={styles.smallText}>{project.overview}</Text>
+      </View>
+      <Section title="Project Teacher Setup" items={project.teacherSetup} />
+      <Section title="Project Student Task" items={project.studentTask} />
+      <Section title="Project Deliverables" items={project.deliverables} />
+      <Section title="Project Grouping and Timing" items={project.groupingAndTiming} />
+      <Section title="Project Differentiation and Support" items={project.differentiationSupport} />
+    </>
+  );
+}
+
 export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }) {
   return (
     <Document>
@@ -187,6 +224,9 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
         <Section title="Standards Sources" items={lessonPlan.standardsSources} />
         {lessonPlan.providedResources.length > 0 ? (
           <Section title="Provided Resources" items={lessonPlan.providedResources} />
+        ) : null}
+        {lessonPlan.handsOnProject ? (
+          <HandsOnProjectSection project={lessonPlan.handsOnProject} />
         ) : null}
         <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
         <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />

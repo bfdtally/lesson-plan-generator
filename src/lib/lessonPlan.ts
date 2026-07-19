@@ -44,6 +44,34 @@ export function fallbackLessonPlan(form: LessonFormData): LessonPlan {
     providedResources: form.resources
       ? form.resources.split("\n").filter((resource) => resource.trim().length > 0)
       : [],
+    handsOnProject: {
+      title: `${form.lesson || "Lesson"} Hands-on Project`,
+      overview:
+        "Students complete a practical classroom project that turns the lesson concept into a visible product, model, demonstration, or performance task.",
+      teacherSetup: [
+        "Prepare low-cost materials and a short model example before class.",
+        "Post clear project directions, success criteria, and time checkpoints.",
+        "Arrange students in pairs or small groups based on the needs of the activity."
+      ],
+      studentTask: [
+        "Use the lesson content to create a hands-on product, model, demonstration, or explanation.",
+        "Record evidence of learning through labels, notes, sketches, calculations, or written explanations.",
+        "Share the finished work with classmates and explain how it connects to the lesson objective."
+      ],
+      deliverables: [
+        "Completed project product or demonstration",
+        "Student explanation showing the key lesson concept",
+        "Brief reflection or exit ticket connecting the project to the learning goal"
+      ],
+      groupingAndTiming: [
+        "Suggested grouping: partners or small groups of three to four students.",
+        "Suggested timing: 25 to 40 minutes, depending on grade level and available materials."
+      ],
+      differentiationSupport: [
+        "Provide sentence stems, visuals, or a partially completed organizer for students who need support.",
+        "Offer an extension challenge that asks students to add evidence, justify choices, or apply the idea to a new example."
+      ]
+    },
     materialsResourcesEquipment: [
       "Teacher presentation or anchor chart",
       "Student handouts or notebooks",

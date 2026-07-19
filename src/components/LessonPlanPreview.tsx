@@ -23,6 +23,29 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
+function HandsOnProjectSection({ project }: { project: NonNullable<LessonPlan["handsOnProject"]> }) {
+  return (
+    <section className="break-inside-avoid border-t border-[#ead7c4] pt-6 print:border-[#b8b8b8]">
+      <div className="rounded-md border-l-4 border-[#f58220] bg-[#fff8ef] p-5">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#f58220]">Featured classroom project</p>
+        <h3 className="mt-2 text-2xl font-bold text-[#006b35] print:text-black">
+          Hands-on Project: {project.title}
+        </h3>
+        <p className="mt-3 text-sm leading-6 text-[#303833]">{project.overview}</p>
+      </div>
+      <div className="mt-5 grid gap-5 md:grid-cols-2">
+        <Section title="Teacher Setup" items={project.teacherSetup} />
+        <Section title="Student Task" items={project.studentTask} />
+        <Section title="Deliverables" items={project.deliverables} />
+        <Section title="Grouping and Timing" items={project.groupingAndTiming} />
+      </div>
+      <div className="mt-5">
+        <Section title="Differentiation and Support" items={project.differentiationSupport} />
+      </div>
+    </section>
+  );
+}
+
 export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPlan }) {
   return (
     <article className="space-y-8 rounded-md border border-[#ead7c4] bg-white p-6 shadow-sm sm:p-8 print:rounded-none print:border-0 print:p-0 print:shadow-none">
@@ -57,6 +80,9 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
       <Section title="Standards Sources" items={lessonPlan.standardsSources} />
       {lessonPlan.providedResources.length > 0 ? (
         <Section title="Provided Resources" items={lessonPlan.providedResources} />
+      ) : null}
+      {lessonPlan.handsOnProject ? (
+        <HandsOnProjectSection project={lessonPlan.handsOnProject} />
       ) : null}
       <Section title="Materials" items={lessonPlan.materialsResourcesEquipment} />
       <Section title="Preventative Techniques" items={lessonPlan.preventativeTechniques} />

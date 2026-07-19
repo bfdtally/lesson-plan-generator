@@ -24,6 +24,15 @@ const RubricPdfDownload = dynamic(() => import("@/components/RubricPdf"), {
   )
 });
 
+const HandsOnProjectPdfDownload = dynamic(() => import("@/components/HandsOnProjectPdf"), {
+  ssr: false,
+  loading: () => (
+    <span className="inline-flex min-h-11 items-center rounded-md bg-[#f2eadf] px-5 py-3 text-sm font-semibold text-[#006b35]">
+      Loading project...
+    </span>
+  )
+});
+
 const fieldLabels: Record<keyof LessonFormData, string> = {
   schoolId: "School",
   name: "Teacher Name",
@@ -360,6 +369,7 @@ export default function Home() {
                 >
                   Regenerate Lesson Plan
                 </button>
+                <HandsOnProjectPdfDownload lessonPlan={lessonPlan} />
                 <RubricPdfDownload lessonPlan={lessonPlan} />
                 <LessonPlanPdfDownload lessonPlan={lessonPlan} />
               </div>
