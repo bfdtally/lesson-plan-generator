@@ -113,6 +113,19 @@ export type AdminLessonRow = {
   updated_at: string;
 };
 
+export type TeacherLessonSummary = {
+  id: string;
+  school_id: SchoolId;
+  teacher_name: string;
+  class_name: string;
+  subject: string;
+  unit: string;
+  lesson: string;
+  grade_level: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export const requiredFields: Array<keyof LessonFormData> = [
   "schoolId",
   "name",

@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { AdminLessonRow, LessonFormData, LessonPlan, SchoolId } from "./types";
+import type { AdminLessonRow, LessonFormData, LessonPlan, SchoolId, TeacherLessonSummary } from "./types";
 
 export function getSupabaseAdminClient() {
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -129,6 +129,34 @@ export async function listSavedLessons({ schoolId }: { schoolId?: SchoolId | "al
   }
 
   return (data ?? []) as AdminLessonRow[];
+}
+
+export async function listLessonsForTeacher({
+  schoolId,
+  teacherName
+}: {
+  schoolId: SchoolId;
+  teacherName: string;
+}) {
+  const supabase = getSupabaseAdminClient();
+
+  if (!supabase) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  const { data, error } = await supabase
+    .from("lesson_plans")
+    .select("id, school_id, teacher_name, class_name, subject, unit, lesson, grade_level, created_at, updated_at")
+    .eq("school_id", schoolId)
+    .ilike("teacher_name", `%${teacherName.trim()}%`)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as TeacherLessonSummary[];
 }
 
 export async function deleteSavedLesson({ lessonId }: { lessonId: string }) {

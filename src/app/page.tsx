@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { FormEvent, useMemo, useState } from "react";
 import LessonPlanPreview from "@/components/LessonPlanPreview";
 import { emptyForm } from "@/lib/lessonPlan";
-import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan } from "@/lib/types";
+import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan, type SchoolId, type TeacherLessonSummary } from "@/lib/types";
 
 const LessonPlanPdfDownload = dynamic(() => import("@/components/LessonPlanPdf"), {
   ssr: false,
@@ -128,12 +128,27 @@ function InputField({
   );
 }
 
+function formatLessonDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
 export default function Home() {
   const [form, setForm] = useState<LessonFormData>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof LessonFormData, string>>>({});
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
   const [savedLessonId, setSavedLessonId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [teacherLookupSchoolId, setTeacherLookupSchoolId] = useState<SchoolId | "">("");
+  const [teacherLookupName, setTeacherLookupName] = useState("");
+  const [teacherLessons, setTeacherLessons] = useState<TeacherLessonSummary[]>([]);
+  const [isFindingLessons, setIsFindingLessons] = useState(false);
+  const [lookupNotice, setLookupNotice] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const hasResult = Boolean(lessonPlan);
@@ -145,6 +160,12 @@ export default function Home() {
   function updateField(field: keyof LessonFormData, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
+    if (field === "schoolId") {
+      setTeacherLookupSchoolId(value as SchoolId | "");
+    }
+    if (field === "name") {
+      setTeacherLookupName(value);
+    }
   }
 
   function clearForm() {
@@ -152,6 +173,8 @@ export default function Home() {
     setErrors({});
     setLessonPlan(null);
     setSavedLessonId(null);
+    setTeacherLessons([]);
+    setLookupNotice(null);
     setNotice(null);
   }
 
@@ -222,6 +245,47 @@ export default function Home() {
       setNotice(error instanceof Error ? error.message : "Something went wrong. Please check your information and try again.");
     } finally {
       setIsGenerating(false);
+    }
+  }
+
+  async function findTeacherLessons() {
+    const schoolId = teacherLookupSchoolId || form.schoolId;
+    const teacherName = teacherLookupName.trim() || form.name.trim();
+
+    setLookupNotice(null);
+    setTeacherLessons([]);
+
+    if (!schoolId) {
+      setLookupNotice("Choose your FAMU DRS school first.");
+      return;
+    }
+
+    if (!teacherName) {
+      setLookupNotice("Enter the teacher name used when the lesson was submitted.");
+      return;
+    }
+
+    setIsFindingLessons(true);
+    try {
+      const params = new URLSearchParams({
+        schoolId,
+        teacherName
+      });
+      const response = await fetch(`/api/teacher/lessons?${params.toString()}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not find submitted lessons right now.");
+      }
+
+      setTeacherLessons(data.lessons ?? []);
+      if (!data.lessons?.length) {
+        setLookupNotice("No submitted lessons matched that school and teacher name.");
+      }
+    } catch (error) {
+      setLookupNotice(error instanceof Error ? error.message : "Could not find submitted lessons right now.");
+    } finally {
+      setIsFindingLessons(false);
     }
   }
 
@@ -357,6 +421,82 @@ export default function Home() {
               Clear Form
             </button>
           </div>
+
+          <section className="rounded-md border border-[#ead7c4] bg-[#fff8ef] p-4">
+            <h3 className="text-base font-bold text-[#10251b]">Need to edit a submitted lesson?</h3>
+            <p className="mt-2 text-sm leading-6 text-[#526158]">
+              Find lessons submitted under your school and teacher name, then open the revision workspace.
+            </p>
+
+            <div className="mt-4 grid gap-3">
+              <div>
+                <label htmlFor="teacher-lookup-school" className="text-sm font-semibold text-[#28312c]">
+                  School
+                </label>
+                <select
+                  id="teacher-lookup-school"
+                  value={teacherLookupSchoolId || form.schoolId}
+                  onChange={(event) => setTeacherLookupSchoolId(event.target.value as SchoolId | "")}
+                  className="mt-2 min-h-11 w-full rounded-md border border-[#d8c7b6] bg-white px-3 py-2 text-sm text-[#1d2320] outline-none transition focus:border-[#006b35] focus:ring-2 focus:ring-[#f58220]/25"
+                >
+                  <option value="">Select a school</option>
+                  {schoolOptions.map((school) => (
+                    <option key={school.id} value={school.id}>
+                      {school.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="teacher-lookup-name" className="text-sm font-semibold text-[#28312c]">
+                  Teacher Name
+                </label>
+                <input
+                  id="teacher-lookup-name"
+                  value={teacherLookupName || form.name}
+                  onChange={(event) => setTeacherLookupName(event.target.value)}
+                  placeholder="Use the same name from your submission"
+                  className="mt-2 min-h-11 w-full rounded-md border border-[#d8c7b6] bg-white px-3 py-2 text-sm text-[#1d2320] outline-none transition placeholder:text-[#8a968e] focus:border-[#006b35] focus:ring-2 focus:ring-[#f58220]/25"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={findTeacherLessons}
+                disabled={isFindingLessons}
+                className="flex min-h-11 w-full items-center justify-center rounded-md border border-[#006b35] bg-white px-4 py-3 text-sm font-semibold text-[#006b35] shadow-sm transition hover:bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-[#879894]"
+              >
+                {isFindingLessons ? "Finding lessons..." : "Find My Lessons"}
+              </button>
+            </div>
+
+            {lookupNotice ? (
+              <p className="mt-3 text-sm leading-6 text-[#7b3928]">{lookupNotice}</p>
+            ) : null}
+
+            {teacherLessons.length ? (
+              <div className="mt-4 space-y-3">
+                {teacherLessons.map((lesson) => (
+                  <div key={lesson.id} className="rounded-md border border-[#ead7c4] bg-white p-3">
+                    <p className="font-semibold leading-5 text-[#10251b]">{lesson.lesson}</p>
+                    <p className="mt-1 text-xs leading-5 text-[#59635d]">
+                      {lesson.subject} - Grade {lesson.grade_level} - {lesson.class_name}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-[#59635d]">
+                      Last updated {formatLessonDate(lesson.updated_at)}
+                    </p>
+                    <a
+                      href={`/edit/${lesson.id}`}
+                      className="mt-3 inline-flex min-h-9 items-center justify-center rounded-md bg-[#006b35] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#00552a] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2"
+                    >
+                      Edit This Lesson
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </section>
         </form>
 
         <section className="min-w-0 print:min-w-full">
