@@ -1,54 +1,188 @@
-# FAMU DRS Lesson Plan Generator
+# FAMU DRS AI Lesson Plan Generator
 
-Pilot Next.js app for FAMU DRS teachers to generate Florida standards-aligned lesson plans and save submissions for administrative review.
+> An AI-powered instructional planning platform designed to help K-12 teachers create standards-aligned lesson plans while giving school administrators a centralized dashboard to support instructional planning.
 
-## Routes
+---
 
-- `/` - teacher lesson plan generator
-- `/admin` - password-protected pilot dashboard for reviewing saved lesson plans
+## Overview
 
-## Setup
+The FAMU DRS AI Lesson Plan Generator was originally developed for undergraduate teacher education students at Florida A&M University.
 
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
-```
+After demonstrating the application to teachers and administrators at Florida A&M Developmental Research School (FAMU DRS), the project evolved into a cloud-based instructional planning platform intended for real-world classroom use.
 
-## Required Environment Variables
+During **OpenAI Build Week**, the application underwent significant expansion, including new instructional pathways, administrator functionality, cloud deployment improvements, and enhanced user workflows.
 
-```text
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-ADMIN_ACCESS_CODE=
-```
+The platform is currently being prepared for pilot implementation at **FAMU DRS**.
 
-`SUPABASE_SERVICE_ROLE_KEY` must stay server-side only. Do not expose it in browser code or prefix it with `NEXT_PUBLIC_`.
+---
 
-## Supabase
+# Why I Built It
 
-Run this SQL in the Supabase SQL Editor before expecting lessons to save:
+Teachers spend countless hours creating lesson plans, aligning instruction with standards, writing objectives, developing assessments, and formatting instructional documents.
 
-```text
-supabase/famu_drs_schema.sql
-```
+This project uses artificial intelligence to reduce repetitive administrative work so educators can spend more time teaching, mentoring students, collaborating with colleagues, and improving instruction.
 
-The schema creates:
+The goal is **not** to replace teachers.
 
-- `schools`
-- `profiles`
-- `lesson_plans`
+The goal is to give teachers a high-quality starting point that they can review, revise, and personalize.
 
-## Deploy on Render
+---
 
-Deploy as a Render Web Service, not a Static Site.
+# Features
 
-Suggested settings:
+### Teacher Dashboard
 
-- Runtime: Node
-- Build Command: `npm install && npm run build`
-- Start Command: `npm run start -- -p $PORT`
+- AI-generated lesson plans
+- Standards-aligned instructional content
+- Lesson objectives
+- Instructional procedures
+- Assessments
+- Rubrics
+- Differentiation strategies
+- Save lesson plans
+- Retrieve previously generated lessons
 
-After changing environment variables, use **Save, rebuild, and deploy**.
+### Administrator Dashboard
+
+- School-wide lesson management
+- Teacher account oversight
+- Review saved lesson plans
+- Organized instructional planning
+- Administrative support tools
+
+### Grade-Level Support
+
+- Elementary School
+- Middle School
+- High School
+
+---
+
+# Built During OpenAI Build Week
+
+Major Build Week additions included:
+
+- Elementary, middle, and high school instructional pathways
+- Administrative dashboard
+- Teacher and administrator user roles
+- Lesson saving functionality
+- Supabase integration
+- Authentication improvements
+- Render deployment improvements
+- UI/UX redesign
+- Production workflow improvements
+- Extensive testing and debugging using Codex
+
+---
+
+# Built With
+
+- OpenAI GPT-5.6
+- OpenAI Codex
+- ChatGPT
+- Next.js
+- React
+- Supabase
+- Render
+- GitHub
+
+---
+
+# How AI Helped Build This Project
+
+## ChatGPT
+
+ChatGPT served as my instructional design and prompting partner.
+
+I used ChatGPT to:
+
+- Develop lesson-generation prompts
+- Improve instructional design
+- Refine teacher workflows
+- Structure AI outputs
+- Brainstorm features
+- Improve administrator workflows
+
+---
+
+## Codex
+
+As a STEM Education professor—not a professional software engineer—Codex became my development mentor.
+
+Throughout this project Codex helped me:
+
+- Learn GitHub workflows
+- Understand repositories and commits
+- Deploy applications with Render
+- Learn Supabase
+- Implement authentication
+- Debug application issues
+- Improve software architecture
+- Refactor code
+- Design better user experiences
+
+Most importantly, Codex helped transform me from a novice programmer into someone capable of building production-ready educational software.
+
+---
+
+# Technology Stack
+
+| Technology | Purpose |
+|------------|---------|
+| GPT-5.6 | Lesson generation |
+| ChatGPT | Prompt engineering & instructional design |
+| Codex | Software development & mentoring |
+| Next.js | Frontend framework |
+| React | User Interface |
+| Supabase | Authentication & Database |
+| Render | Cloud deployment |
+| GitHub | Version control |
+
+---
+
+# Live Demo
+
+**Application**
+
+https://YOUR-RENDER-URL.onrender.com
+
+---
+
+# Repository
+
+https://github.com/bfdtally/lesson-plan-generator
+
+---
+
+# Future Development
+
+Planned enhancements include:
+
+- District dashboards
+- Curriculum mapping
+- AI assessment generation
+- Lesson collaboration
+- Expanded standards support
+- LMS integration
+- Analytics
+- Reporting
+
+---
+
+# Acknowledgements
+
+Special thanks to:
+
+- OpenAI
+- Codex
+- ChatGPT
+- Florida A&M University
+- Florida A&M Developmental Research School
+
+for helping transform this project from a university classroom assignment into a real-world educational platform.
+
+---
+
+# License
+
+MIT License
