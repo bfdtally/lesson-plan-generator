@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { pdf } from "@react-pdf/renderer";
+import { LessonPlanPdfDocument } from "@/components/LessonPlanPdf";
 import LessonPlanPreview from "@/components/LessonPlanPreview";
-import { getRubricLevel, rubricLevelOrder } from "@/lib/rubric";
 import { schoolOptions, type AdminLessonRow, type SchoolId } from "@/lib/types";
 
 type SchoolFilter = SchoolId | "all";
@@ -44,139 +45,6 @@ function cleanFilePart(value: string, fallback: string) {
     .slice(0, 80) || fallback;
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function sectionHtml(title: string, items: string[]) {
-  if (!items.length) {
-    return "";
-  }
-
-  return `
-    <section>
-      <h2>${escapeHtml(title)}</h2>
-      <ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-    </section>
-  `;
-}
-
-function rubricHtml(lesson: AdminLessonRow) {
-  const rubric = lesson.lesson_plan.rubric;
-
-  return `
-    <section>
-      <div class="rubric-heading">
-        <h2>Rubric</h2>
-        <p>Total possible points: ${rubric.totalPossiblePoints}</p>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Criteria</th>
-            ${rubricLevelOrder.map((label) => `<th>${label} / Points</th>`).join("")}
-          </tr>
-        </thead>
-        <tbody>
-          ${rubric.criteria
-            .map(
-              (criterion) => `
-                <tr>
-                  <th>${escapeHtml(criterion.criterion)}</th>
-                  ${rubricLevelOrder
-                    .map((label) => {
-                      const level = getRubricLevel(criterion, label);
-                      return `
-                        <td>
-                          <strong>${level?.points ?? 0} pts</strong>
-                          <p>${escapeHtml(level?.description ?? "")}</p>
-                        </td>
-                      `;
-                    })
-                    .join("")}
-                </tr>
-              `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    </section>
-  `;
-}
-
-function lessonHtml(lesson: AdminLessonRow) {
-  const plan = lesson.lesson_plan;
-  const procedures = plan.methodsProcedures;
-
-  return `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>${escapeHtml(plan.heading.title)}</title>
-  <style>
-    body { color: #1d2320; font-family: Arial, Helvetica, sans-serif; line-height: 1.55; margin: 32px; }
-    header { border-bottom: 4px solid #006b35; margin-bottom: 24px; padding-bottom: 18px; }
-    h1 { color: #10251b; margin: 0 0 8px; }
-    h2 { border-top: 1px solid #ead7c4; color: #006b35; margin-top: 26px; padding-top: 18px; }
-    .kicker { color: #f58220; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-    .details { background: #fff8ef; border-left: 5px solid #f58220; display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); margin: 20px 0; padding: 16px; }
-    .label { color: #66736b; display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    ul { padding-left: 22px; }
-    table { border-collapse: collapse; font-size: 12px; table-layout: fixed; width: 100%; }
-    th, td { border: 1px solid #ead7c4; padding: 8px; text-align: left; vertical-align: top; word-break: break-word; }
-    thead th { background: #fff0df; }
-    .rubric-heading { align-items: end; display: flex; justify-content: space-between; gap: 16px; }
-    @media print { body { margin: 20px; } }
-  </style>
-</head>
-<body>
-  <header>
-    <p class="kicker">FAMU DRS lesson plan archive</p>
-    <h1>${escapeHtml(plan.heading.title)}</h1>
-    <p>${escapeHtml(plan.heading.subtitle)}</p>
-  </header>
-
-  <section class="details">
-    <div><span class="label">School</span>${escapeHtml(plan.schoolName)}</div>
-    <div><span class="label">Teacher</span>${escapeHtml(plan.name)}</div>
-    <div><span class="label">Class / Course</span>${escapeHtml(plan.className)}</div>
-    <div><span class="label">Grade Level</span>${escapeHtml(plan.gradeLevel)}</div>
-    <div><span class="label">Subject</span>${escapeHtml(plan.subject)}</div>
-    <div><span class="label">Unit</span>${escapeHtml(plan.unit)}</div>
-    <div><span class="label">Lesson</span>${escapeHtml(plan.lesson)}</div>
-    <div><span class="label">Submitted</span>${escapeHtml(formatDate(lesson.created_at))}</div>
-    <div><span class="label">State</span>${escapeHtml(plan.state)}</div>
-  </section>
-
-  ${sectionHtml("Goals", plan.goals)}
-  ${sectionHtml("Behavioral Objectives", plan.specificBehavioralObjectives)}
-  ${sectionHtml("Standards", plan.associatedStandards)}
-  ${sectionHtml("Standards Sources", plan.standardsSources)}
-  ${sectionHtml("Provided Resources", plan.providedResources)}
-  ${sectionHtml("Materials", plan.materialsResourcesEquipment)}
-  ${sectionHtml("Preventative Techniques", plan.preventativeTechniques)}
-  ${sectionHtml("Interventive Techniques", plan.interventiveTechniques)}
-  <section>
-    <h2>Step-by-step Procedures</h2>
-    ${sectionHtml("1. Attention Grabber", procedures.attentionGrabber)}
-    ${sectionHtml("2. Introduction of the Lesson", procedures.introductionOfLesson)}
-    ${sectionHtml("3. Teacher Modeling / Direct Instruction", procedures.teacherModelingDirectInstruction)}
-    ${sectionHtml("4. Critical Thinking Questioning / Guided Practice", procedures.criticalThinkingQuestioningGuidedPractice)}
-    ${sectionHtml("5. Independent or Group Work", procedures.independentOrGroupWork)}
-  </section>
-  ${sectionHtml("Assessment", plan.assessment)}
-  ${rubricHtml(lesson)}
-  ${sectionHtml("Reflection", plan.reflection)}
-  ${sectionHtml("Enrichment Activities", plan.enrichmentActivities)}
-</body>
-</html>`;
-}
-
 function crc32(bytes: Uint8Array) {
   let crc = 0xffffffff;
 
@@ -198,7 +66,7 @@ function writeUint32(output: number[], value: number) {
   output.push(value & 0xff, (value >>> 8) & 0xff, (value >>> 16) & 0xff, (value >>> 24) & 0xff);
 }
 
-function createZip(files: Array<{ path: string; content: string }>) {
+function createZip(files: Array<{ path: string; content: Uint8Array }>) {
   const encoder = new TextEncoder();
   const localParts: Uint8Array[] = [];
   const centralParts: Uint8Array[] = [];
@@ -206,7 +74,7 @@ function createZip(files: Array<{ path: string; content: string }>) {
 
   for (const file of files) {
     const nameBytes = encoder.encode(file.path);
-    const contentBytes = encoder.encode(file.content);
+    const contentBytes = file.content;
     const checksum = crc32(contentBytes);
     const localHeader: number[] = [];
 
@@ -296,6 +164,7 @@ export default function AdminPage() {
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
+  const [isExportingZip, setIsExportingZip] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const selectedLesson = lessons.find((lesson) => lesson.id === selectedLessonId) ?? lessons[0] ?? null;
@@ -400,11 +269,14 @@ export default function AdminPage() {
     }
   }
 
-  function downloadTeacherZip() {
+  async function downloadTeacherZip() {
     if (!lessons.length) {
       setError("Load lessons before downloading a teacher ZIP.");
       return;
     }
+
+    setIsExportingZip(true);
+    setError(null);
 
     const groupedLessons = new Map<string, AdminLessonRow[]>();
 
@@ -413,78 +285,37 @@ export default function AdminPage() {
       groupedLessons.set(teacher, [...(groupedLessons.get(teacher) ?? []), lesson]);
     }
 
-    const files: Array<{ path: string; content: string }> = [];
+    try {
+      const files: Array<{ path: string; content: Uint8Array }> = [];
 
-    for (const [teacher, teacherLessons] of groupedLessons) {
-      const teacherFolder = cleanFilePart(teacher, "Teacher");
-      const sortedLessons = [...teacherLessons].sort(
-        (first, second) => new Date(second.created_at).getTime() - new Date(first.created_at).getTime()
-      );
+      for (const [teacher, teacherLessons] of groupedLessons) {
+        const teacherFolder = cleanFilePart(teacher, "Teacher");
+        const sortedLessons = [...teacherLessons].sort(
+          (first, second) => new Date(second.created_at).getTime() - new Date(first.created_at).getTime()
+        );
 
-      const indexRows = sortedLessons
-        .map(
-          (lesson) =>
-            `<tr><td>${escapeHtml(lesson.lesson)}</td><td>${escapeHtml(lesson.subject)}</td><td>${escapeHtml(
-              lesson.grade_level
-            )}</td><td>${escapeHtml(lesson.class_name)}</td><td>${escapeHtml(formatDate(lesson.created_at))}</td></tr>`
-        )
-        .join("");
+        for (const [index, lesson] of sortedLessons.entries()) {
+          const datePart = new Date(lesson.created_at).toISOString().slice(0, 10);
+          const lessonFile = cleanFilePart(`${index + 1}_${datePart}_${lesson.lesson}`, "Lesson");
+          const lessonPdfBlob = await pdf(<LessonPlanPdfDocument lessonPlan={lesson.lesson_plan} />).toBlob();
+          const lessonPdfBytes = new Uint8Array(await lessonPdfBlob.arrayBuffer());
 
-      files.push({
-        path: `${teacherFolder}/index.html`,
-        content: `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>${escapeHtml(teacher)} Lesson Archive</title>
-  <style>
-    body { color: #1d2320; font-family: Arial, Helvetica, sans-serif; line-height: 1.55; margin: 32px; }
-    h1 { color: #10251b; }
-    p { color: #526158; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ead7c4; padding: 8px; text-align: left; vertical-align: top; }
-    thead th { background: #fff0df; color: #006b35; }
-  </style>
-</head>
-<body>
-  <h1>${escapeHtml(teacher)} Lesson Archive</h1>
-  <p>${sortedLessons.length} saved lesson${sortedLessons.length === 1 ? "" : "s"} exported from the FAMU DRS Lesson Plan Dashboard.</p>
-  <table>
-    <thead><tr><th>Lesson</th><th>Subject</th><th>Grade</th><th>Class / Course</th><th>Submitted</th></tr></thead>
-    <tbody>${indexRows}</tbody>
-  </table>
-</body>
-</html>`
-      });
+          files.push({
+            path: `${teacherFolder}/${lessonFile}.pdf`,
+            content: lessonPdfBytes
+          });
+        }
+      }
 
-      sortedLessons.forEach((lesson, index) => {
-        const datePart = new Date(lesson.created_at).toISOString().slice(0, 10);
-        const lessonFile = cleanFilePart(`${index + 1}_${datePart}_${lesson.lesson}`, "Lesson");
-        files.push({
-          path: `${teacherFolder}/${lessonFile}.html`,
-          content: lessonHtml(lesson)
-        });
-      });
+      const schoolPart = schoolFilter === "all" ? "All_Schools" : cleanFilePart(schoolFilter, "School");
+      const datePart = new Date().toISOString().slice(0, 10);
+      downloadBlob(createZip(files), `FAMU_DRS_Lesson_Plans_By_Teacher_${schoolPart}_${datePart}.zip`);
+    } catch (exportError) {
+      setError(exportError instanceof Error ? exportError.message : "Could not create teacher ZIP.");
+    } finally {
+      setIsExportingZip(false);
     }
-
-    files.push({
-      path: "README.txt",
-      content: `FAMU DRS Lesson Plan Export
-
-This ZIP contains one folder per teacher.
-Each teacher folder includes an index.html file and one HTML file per saved lesson.
-
-Exported lessons: ${lessons.length}
-Teacher folders: ${groupedLessons.size}
-School filter: ${schoolFilter === "all" ? "All FAMU DRS Schools" : schoolOptions.find((school) => school.id === schoolFilter)?.label ?? schoolFilter}
-`
-    });
-
-    const schoolPart = schoolFilter === "all" ? "All_Schools" : cleanFilePart(schoolFilter, "School");
-    const datePart = new Date().toISOString().slice(0, 10);
-    downloadBlob(createZip(files), `FAMU_DRS_Lesson_Plans_By_Teacher_${schoolPart}_${datePart}.zip`);
   }
-
   return (
     <main className="min-h-screen bg-[#fbfaf7]">
       <section className="border-b-4 border-[#006b35] bg-white">
@@ -575,16 +406,16 @@ School filter: ${schoolFilter === "all" ? "All FAMU DRS Schools" : schoolOptions
               <div>
                 <p className="text-sm font-bold text-[#10251b]">Teacher archive export</p>
                 <p className="mt-1 text-sm leading-6 text-[#59635d]">
-                  Download the currently loaded lessons as a ZIP with separate folders for each teacher.
+                  Download the currently loaded lessons as PDFs, organized into separate teacher folders.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={downloadTeacherZip}
-                disabled={!lessons.length}
+                disabled={!lessons.length || isExportingZip}
                 className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#006b35] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#00552a] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#879894]"
               >
-                Download Teacher ZIP
+                {isExportingZip ? "Preparing PDFs..." : "Download Teacher PDFs"}
               </button>
             </div>
 
