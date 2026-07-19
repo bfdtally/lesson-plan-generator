@@ -144,7 +144,27 @@ Most importantly, Codex helped transform me from a novice programmer into someon
 
 **Application**
 
-https://YOUR-RENDER-URL.onrender.com
+https://lesson-plan-generator-8r0j.onrender.com
+
+---
+
+# Application Screenshots
+
+## Homepage
+
+![Homepage](public/screenshots/homepage.png)
+
+## Lesson Generator
+
+![Lesson Generator](public/screenshots/lesson-generator.png)
+
+## Generated Lesson Plan
+
+![Generated Lesson Plan](public/screenshots/generated-lesson.png)
+
+## Admin Dashboard
+
+![Admin Dashboard](public/screenshots/admin-dashboard.png)
 
 ---
 
