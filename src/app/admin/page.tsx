@@ -506,6 +506,14 @@ export default function AdminPage() {
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
                           <SchoolBadge schoolId={selectedLesson.school_id} />
+                          <a
+                            href={`/edit/${selectedLesson.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#006b35] bg-white px-4 py-2 text-sm font-semibold text-[#006b35] transition hover:bg-[#fff8ef] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2"
+                          >
+                            Open Teacher Editor
+                          </a>
                           <button
                             type="button"
                             onClick={() => deleteLesson(selectedLesson)}

@@ -269,7 +269,9 @@ Return concise notes with:
 }
 
 export async function POST(request: Request) {
-  const form = normalizeForm((await request.json()) as LessonFormData);
+  const requestBody = (await request.json()) as LessonFormData & { existingLessonId?: string | null };
+  const form = normalizeForm(requestBody);
+  const existingLessonId = requestBody.existingLessonId ?? null;
   const missingFields = validateForm(form);
 
   if (missingFields.length > 0) {
@@ -382,7 +384,7 @@ Requirements:
 
     let savedLessonId: string | null = null;
     try {
-      savedLessonId = await saveGeneratedLesson({ form, lessonPlan });
+      savedLessonId = await saveGeneratedLesson({ form, lessonPlan, existingLessonId });
     } catch (saveError) {
       console.error("Lesson save failed:", saveError);
     }

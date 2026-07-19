@@ -132,6 +132,7 @@ export default function Home() {
   const [form, setForm] = useState<LessonFormData>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof LessonFormData, string>>>({});
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
+  const [savedLessonId, setSavedLessonId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -150,6 +151,7 @@ export default function Home() {
     setForm(emptyForm);
     setErrors({});
     setLessonPlan(null);
+    setSavedLessonId(null);
     setNotice(null);
   }
 
@@ -215,6 +217,7 @@ export default function Home() {
       }
 
       setLessonPlan(data.lessonPlan);
+      setSavedLessonId(data.savedLessonId ?? null);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Something went wrong. Please check your information and try again.");
     } finally {
@@ -369,6 +372,14 @@ export default function Home() {
                 >
                   Regenerate Lesson Plan
                 </button>
+                {savedLessonId ? (
+                  <a
+                    href={`/edit/${savedLessonId}`}
+                    className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#006b35] bg-white px-5 py-3 text-sm font-semibold text-[#006b35] shadow-sm transition hover:bg-[#fff8ef] focus:outline-none focus:ring-2 focus:ring-[#f58220] focus:ring-offset-2"
+                  >
+                    Edit Saved Lesson
+                  </a>
+                ) : null}
                 <HandsOnProjectPdfDownload lessonPlan={lessonPlan} />
                 <RubricPdfDownload lessonPlan={lessonPlan} />
                 <LessonPlanPdfDownload lessonPlan={lessonPlan} />
