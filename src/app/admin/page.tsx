@@ -266,7 +266,13 @@ function createZip(files: Array<{ path: string; content: string }>) {
   writeUint32(endHeader, offset);
   writeUint16(endHeader, 0);
 
-  return new Blob([...localParts, ...centralParts, new Uint8Array(endHeader)], {
+  const blobParts = [...localParts, ...centralParts, new Uint8Array(endHeader)].map((part) => {
+    const copy = new ArrayBuffer(part.byteLength);
+    new Uint8Array(copy).set(part);
+    return copy;
+  });
+
+  return new Blob(blobParts, {
     type: "application/zip"
   });
 }
