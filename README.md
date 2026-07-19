@@ -4,6 +4,26 @@
 
 ---
 
+# Application Screenshots
+
+## Homepage
+
+![Homepage](public/screenshots/homepage.png)
+
+## Lesson Generator
+
+![Lesson Generator](public/screenshots/lesson-generator.png)
+
+## Generated Lesson Plan
+
+![Generated Lesson Plan](public/screenshots/generated-lesson.png)
+
+## Admin Dashboard
+
+![Admin Dashboard](public/screenshots/admin-dashboard.png)
+
+---
+
 ## Overview
 
 The FAMU DRS AI Lesson Plan Generator was originally developed for undergraduate teacher education students at Florida A&M University.
@@ -145,26 +165,6 @@ Most importantly, Codex helped transform me from a novice programmer into someon
 **Application**
 
 https://lesson-plan-generator-8r0j.onrender.com
-
----
-
-# Application Screenshots
-
-## Homepage
-
-![Homepage](public/screenshots/homepage.png)
-
-## Lesson Generator
-
-![Lesson Generator](public/screenshots/lesson-generator.png)
-
-## Generated Lesson Plan
-
-![Generated Lesson Plan](public/screenshots/generated-lesson.png)
-
-## Admin Dashboard
-
-![Admin Dashboard](public/screenshots/admin-dashboard.png)
 
 ---
 
