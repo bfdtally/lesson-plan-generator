@@ -46,6 +46,28 @@ function HandsOnProjectSection({ project }: { project: NonNullable<LessonPlan["h
   );
 }
 
+function ResourceImagesSection({ images }: { images: NonNullable<LessonPlan["resourceImages"]> }) {
+  return (
+    <section className="break-inside-avoid border-t border-[#ead7c4] pt-6 print:border-[#b8b8b8]">
+      <h3 className="text-xl font-semibold text-[#006b35] print:text-black">Uploaded Resource Images</h3>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {images.map((image, index) => (
+          <figure key={`${image.name}-${index}`} className="rounded-md border border-[#ead7c4] bg-[#fff8ef] p-3">
+            <img
+              src={image.dataUrl}
+              alt=""
+              className="h-auto max-h-72 w-full rounded-md border border-[#ead7c4] object-contain bg-white"
+            />
+            <figcaption className="mt-2 break-words text-xs font-semibold text-[#526158]">
+              {image.name}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPlan }) {
   return (
     <article className="space-y-8 rounded-md border border-[#ead7c4] bg-white p-6 shadow-sm sm:p-8 print:rounded-none print:border-0 print:p-0 print:shadow-none">
@@ -80,6 +102,9 @@ export default function LessonPlanPreview({ lessonPlan }: { lessonPlan: LessonPl
       <Section title="Standards Sources" items={lessonPlan.standardsSources} />
       {lessonPlan.providedResources.length > 0 ? (
         <Section title="Provided Resources" items={lessonPlan.providedResources} />
+      ) : null}
+      {lessonPlan.resourceImages?.length ? (
+        <ResourceImagesSection images={lessonPlan.resourceImages} />
       ) : null}
       {lessonPlan.handsOnProject ? (
         <HandsOnProjectSection project={lessonPlan.handsOnProject} />

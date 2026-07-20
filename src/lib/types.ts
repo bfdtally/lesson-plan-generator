@@ -79,6 +79,7 @@ export type LessonPlan = {
   associatedStandards: string[];
   standardsSources: string[];
   providedResources: string[];
+  resourceImages?: ResourceImage[];
   handsOnProject?: HandsOnProject;
   materialsResourcesEquipment: string[];
   preventativeTechniques: string[];

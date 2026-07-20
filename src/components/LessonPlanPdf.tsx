@@ -142,6 +142,32 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: "#006b35",
     marginBottom: 4
+  },
+  imageGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 4,
+    marginBottom: 4
+  },
+  imageCard: {
+    width: "48%",
+    padding: 5,
+    marginRight: 6,
+    marginBottom: 8,
+    border: "1 solid #ead7c4",
+    backgroundColor: "#fff8ef"
+  },
+  resourceImage: {
+    width: "100%",
+    height: 145,
+    objectFit: "contain",
+    backgroundColor: "#ffffff",
+    border: "1 solid #ead7c4"
+  },
+  imageCaption: {
+    marginTop: 4,
+    fontSize: 7.5,
+    color: "#526158"
   }
 });
 
@@ -195,6 +221,24 @@ function HandsOnProjectSection({ project }: { project: NonNullable<LessonPlan["h
   );
 }
 
+function ResourceImagesSection({ images }: { images: NonNullable<LessonPlan["resourceImages"]> }) {
+  return (
+    <>
+      <Text style={styles.sectionTitle} minPresenceAhead={120}>
+        Uploaded Resource Images
+      </Text>
+      <View style={styles.imageGrid}>
+        {images.map((image, index) => (
+          <View key={`${image.name}-${index}`} style={styles.imageCard} wrap={false}>
+            <Image src={image.dataUrl} style={styles.resourceImage} />
+            <Text style={styles.imageCaption}>{image.name}</Text>
+          </View>
+        ))}
+      </View>
+    </>
+  );
+}
+
 export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }) {
   return (
     <Document>
@@ -224,6 +268,9 @@ export function LessonPlanPdfDocument({ lessonPlan }: { lessonPlan: LessonPlan }
         <Section title="Standards Sources" items={lessonPlan.standardsSources} />
         {lessonPlan.providedResources.length > 0 ? (
           <Section title="Provided Resources" items={lessonPlan.providedResources} />
+        ) : null}
+        {lessonPlan.resourceImages?.length ? (
+          <ResourceImagesSection images={lessonPlan.resourceImages} />
         ) : null}
         {lessonPlan.handsOnProject ? (
           <HandsOnProjectSection project={lessonPlan.handsOnProject} />

@@ -393,6 +393,15 @@ Requirements:
 - Each rubric performance level must include points and a clear learner-friendly description.
 - Include total possible points for the rubric.`;
 
+    const lessonInputContent = [
+      { type: "input_text" as const, text: lessonPrompt },
+      ...resourceImages.map((image) => ({
+        type: "input_image" as const,
+        image_url: image.dataUrl,
+        detail: "auto" as const
+      }))
+    ];
+
     const response = await openai.responses.create({
       model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
       input: [
@@ -403,13 +412,7 @@ Requirements:
         },
         {
           role: "user",
-          content: [
-            { type: "input_text", text: lessonPrompt },
-            ...resourceImages.map((image) => ({
-              type: "input_image" as const,
-              image_url: image.dataUrl
-            }))
-          ]
+          content: resourceImages.length ? lessonInputContent : lessonPrompt
         }
       ],
       text: {
@@ -423,6 +426,7 @@ Requirements:
     });
 
     const lessonPlan = JSON.parse(response.output_text) as LessonPlan;
+    lessonPlan.resourceImages = resourceImages;
     assertCompleteLessonPlan(lessonPlan);
 
     let savedLessonId: string | null = null;
