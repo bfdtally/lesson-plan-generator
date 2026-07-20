@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { saveGeneratedLesson } from "@/lib/supabaseAdmin";
-import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan } from "@/lib/types";
+import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan, type ResourceImage } from "@/lib/types";
 
 const lessonPlanSchema = {
   type: "object",
@@ -155,6 +155,8 @@ function schoolNameFor(form: LessonFormData) {
 }
 
 const rubricLabels = ["Favorable", "Acceptable", "Marginal", "Unacceptable"] as const;
+const supportedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const maxResourceImages = 4;
 
 function textArray(value: unknown) {
   return Array.isArray(value)
@@ -235,6 +237,30 @@ function assertCompleteLessonPlan(lessonPlan: LessonPlan) {
   }
 }
 
+function sanitizeResourceImages(value: unknown): ResourceImage[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((image): image is ResourceImage => {
+      if (!image || typeof image !== "object") {
+        return false;
+      }
+
+      const candidate = image as Partial<ResourceImage>;
+      return Boolean(
+        typeof candidate.name === "string" &&
+          candidate.name.trim().length > 0 &&
+          typeof candidate.mimeType === "string" &&
+          supportedImageTypes.has(candidate.mimeType) &&
+          typeof candidate.dataUrl === "string" &&
+          candidate.dataUrl.startsWith(`data:${candidate.mimeType};base64,`)
+      );
+    })
+    .slice(0, maxResourceImages);
+}
+
 async function findStandardsContext(openai: OpenAI, form: LessonFormData) {
   const response = await openai.responses.create({
     model: process.env.OPENAI_SEARCH_MODEL || process.env.OPENAI_MODEL || "gpt-4.1-mini",
@@ -269,9 +295,13 @@ Return concise notes with:
 }
 
 export async function POST(request: Request) {
-  const requestBody = (await request.json()) as LessonFormData & { existingLessonId?: string | null };
+  const requestBody = (await request.json()) as LessonFormData & {
+    existingLessonId?: string | null;
+    resourceImages?: ResourceImage[];
+  };
   const form = normalizeForm(requestBody);
   const existingLessonId = requestBody.existingLessonId ?? null;
+  const resourceImages = sanitizeResourceImages(requestBody.resourceImages);
   const missingFields = validateForm(form);
 
   if (missingFields.length > 0) {
@@ -303,17 +333,7 @@ export async function POST(request: Request) {
         `Live standards lookup was unavailable. Generate suggested ${form.state} standards alignments from model knowledge and clearly tell the user to verify exact codes and wording with the official state education agency or district standards source.`;
     }
 
-    const response = await openai.responses.create({
-      model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-      input: [
-        {
-          role: "system",
-          content:
-            "You create complete, practical, classroom-appropriate lesson plans for FAMU DRS teachers. Return only valid structured JSON that matches the provided schema. Never return markdown or prose outside the JSON. Keep language clear, specific, teacher-friendly, and ready to use in a real elementary, middle, or high school classroom."
-        },
-        {
-          role: "user",
-          content: `Create a complete lesson plan using this required format:
+    const lessonPrompt = `Create a complete lesson plan using this required format:
 
 Lesson Plan
 Classroom-ready lesson plan and rubric
@@ -332,8 +352,11 @@ Lesson: ${form.lesson}
 Lesson Description:
 ${form.lessonDescription}
 
-Teacher-provided resources, URLs, uploaded file names, and excerpts:
+Teacher-provided resources, URLs, uploaded file names, image file names, and excerpts:
 ${form.resources?.trim() || "No additional resources were provided."}
+
+Uploaded images available for visual analysis:
+${resourceImages.length ? resourceImages.map((image) => `- ${image.name} (${image.mimeType})`).join("\n") : "No images were uploaded."}
 
 Live standards lookup notes:
 ${standardsContext}
@@ -349,11 +372,13 @@ Requirements:
 - If exact standard codes, source names, or wording may be uncertain, clearly label them as suggested alignments and tell the user to verify the exact standards with CPALMS, the Florida Department of Education, or FAMU DRS/district curriculum guidance.
 - Always include Materials, including low-cost classroom materials when possible.
 - If teacher-provided resources are included, use them to enrich the lesson where relevant.
-- Always include providedResources as a concise list of resources, URLs, uploaded file names, or excerpts the lesson used. Use an empty array if none were provided.
+- If uploaded images are included, analyze them and use relevant visible details to enrich the lesson plan, especially materials, procedures, modeling, guided practice, assessment evidence, and the hands-on project.
+- Do not claim that an uploaded image shows something unless it is visually supported by the image.
+- Always include providedResources as a concise list of resources, URLs, uploaded file names, image file names, or excerpts the lesson used. Use an empty array if none were provided.
 - Do not invent resource URLs. Only include URLs that were provided by the user or found in the live standards lookup notes.
 - Always include a prominent handsOnProject section.
-- If the teacher describes a hands-on project, activity, model, lab, performance task, or classroom project in the Lesson Description or provided resources, preserve that idea and expand it into a complete classroom-ready project.
-- If the teacher does not provide a hands-on project idea, create a practical, low-cost hands-on project aligned to the lesson, grade level, Florida standards, and available classroom materials.
+- If the teacher describes a hands-on project, activity, model, lab, performance task, or classroom project in the Lesson Description, uploaded images, or provided resources, preserve that idea and expand it into a complete classroom-ready project.
+- If the teacher does not provide a hands-on project idea, create a practical, low-cost hands-on project aligned to the lesson, grade level, Florida standards, available classroom materials, and any useful image context.
 - The handsOnProject must include a specific title, concise overview, teacher setup steps, student task steps, student deliverables, grouping and timing guidance, and differentiation/support ideas.
 - The project must be specific enough that a teacher could use it tomorrow without needing to invent the main activity.
 - Connect the hands-on project clearly to the procedures, assessment, materials, and at least one rubric criterion.
@@ -366,7 +391,25 @@ Requirements:
 - Always include a rubric with exactly 4 criteria.
 - Each rubric criterion must include Favorable, Acceptable, Marginal, and Unacceptable as the four FAMU performance levels.
 - Each rubric performance level must include points and a clear learner-friendly description.
-- Include total possible points for the rubric.`
+- Include total possible points for the rubric.`;
+
+    const response = await openai.responses.create({
+      model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+      input: [
+        {
+          role: "system",
+          content:
+            "You create complete, practical, classroom-appropriate lesson plans for FAMU DRS teachers. Return only valid structured JSON that matches the provided schema. Never return markdown or prose outside the JSON. Keep language clear, specific, teacher-friendly, and ready to use in a real elementary, middle, or high school classroom."
+        },
+        {
+          role: "user",
+          content: [
+            { type: "input_text", text: lessonPrompt },
+            ...resourceImages.map((image) => ({
+              type: "input_image" as const,
+              image_url: image.dataUrl
+            }))
+          ]
         }
       ],
       text: {

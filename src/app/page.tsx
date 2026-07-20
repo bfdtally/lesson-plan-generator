@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { FormEvent, useMemo, useState } from "react";
 import LessonPlanPreview from "@/components/LessonPlanPreview";
 import { emptyForm } from "@/lib/lessonPlan";
-import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan, type SchoolId, type TeacherLessonSummary } from "@/lib/types";
+import { requiredFields, schoolOptions, type LessonFormData, type LessonPlan, type ResourceImage, type SchoolId, type TeacherLessonSummary } from "@/lib/types";
 
 const LessonPlanPdfDownload = dynamic(() => import("@/components/LessonPlanPdf"), {
   ssr: false,
@@ -32,6 +32,30 @@ const HandsOnProjectPdfDownload = dynamic(() => import("@/components/HandsOnProj
     </span>
   )
 });
+
+const acceptedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const maxResourceImages = 4;
+const maxResourceImageSize = 4 * 1024 * 1024;
+
+function getAcceptedImageMimeType(file: File): ResourceImage["mimeType"] | null {
+  if (acceptedImageTypes.has(file.type)) {
+    return file.type as ResourceImage["mimeType"];
+  }
+
+  if (/\.(jpg|jpeg)$/i.test(file.name)) {
+    return "image/jpeg";
+  }
+
+  if (/\.png$/i.test(file.name)) {
+    return "image/png";
+  }
+
+  if (/\.webp$/i.test(file.name)) {
+    return "image/webp";
+  }
+
+  return null;
+}
 
 const fieldLabels: Record<keyof LessonFormData, string> = {
   schoolId: "School",
@@ -149,6 +173,8 @@ export default function Home() {
   const [teacherLessons, setTeacherLessons] = useState<TeacherLessonSummary[]>([]);
   const [isFindingLessons, setIsFindingLessons] = useState(false);
   const [lookupNotice, setLookupNotice] = useState<string | null>(null);
+  const [resourceImages, setResourceImages] = useState<ResourceImage[]>([]);
+  const [resourceNotice, setResourceNotice] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const hasResult = Boolean(lessonPlan);
@@ -175,6 +201,8 @@ export default function Home() {
     setSavedLessonId(null);
     setTeacherLessons([]);
     setLookupNotice(null);
+    setResourceImages([]);
+    setResourceNotice(null);
     setNotice(null);
   }
 
@@ -189,14 +217,51 @@ export default function Home() {
     return Object.keys(nextErrors).length === 0;
   }
 
+  function readImageAsDataUrl(file: File) {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function handleResourceFiles(files: FileList | null) {
     if (!files?.length) {
       return;
     }
 
+    setResourceNotice(null);
+    const nextImages: ResourceImage[] = [];
+    const notices: string[] = [];
+    const fileItems = Array.from(files);
+
     const summaries = await Promise.all(
-      Array.from(files).map(async (file) => {
+      fileItems.map(async (file) => {
         const header = `Uploaded file: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+        const imageMimeType = getAcceptedImageMimeType(file);
+
+        if (imageMimeType) {
+          if (file.size > maxResourceImageSize) {
+            notices.push(`${file.name} was not attached because images must be 4 MB or smaller.`);
+            return `${header}\nNote: Image was too large to attach. Use an image 4 MB or smaller.`;
+          }
+
+          if (resourceImages.length + nextImages.length >= maxResourceImages) {
+            notices.push(`Only ${maxResourceImages} images can be attached at one time.`);
+            return `${header}\nNote: Image was listed but not attached because the image limit was reached.`;
+          }
+
+          const dataUrl = await readImageAsDataUrl(file);
+          const base64Payload = dataUrl.includes(",") ? dataUrl.split(",")[1] : "";
+          nextImages.push({
+            name: file.name,
+            mimeType: imageMimeType,
+            dataUrl: `data:${imageMimeType};base64,${base64Payload}`
+          });
+          return `${header}\nImage attachment: This image will be sent to the AI as visual context for the lesson plan.`;
+        }
+
         const canReadText =
           file.type.startsWith("text/") ||
           /\.(txt|md|csv|json|html|rtf)$/i.test(file.name);
@@ -215,6 +280,18 @@ export default function Home() {
       ...current,
       resources: [current.resources, ...summaries].filter(Boolean).join("\n\n")
     }));
+
+    if (nextImages.length) {
+      setResourceImages((current) => [...current, ...nextImages].slice(0, maxResourceImages));
+    }
+
+    if (notices.length) {
+      setResourceNotice(notices.join(" "));
+    }
+  }
+
+  function removeResourceImage(indexToRemove: number) {
+    setResourceImages((current) => current.filter((_, index) => index !== indexToRemove));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -231,7 +308,7 @@ export default function Home() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, resourceImages })
       });
       const data = await response.json();
 
@@ -385,13 +462,47 @@ export default function Home() {
               id="field-resourceFiles"
               type="file"
               multiple
-              accept=".txt,.md,.csv,.json,.html,.rtf,.pdf,.doc,.docx"
+              accept=".txt,.md,.csv,.json,.html,.rtf,.pdf,.doc,.docx,image/jpeg,image/png,image/webp"
               onChange={(event) => handleResourceFiles(event.target.files)}
               className="mt-3 block w-full text-sm text-[#59635d] file:mr-3 file:rounded-md file:border file:border-[#f5b06b] file:bg-[#fff8ef] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[#006b35]"
             />
             <p className="mt-2 text-xs leading-5 text-[#66736b]">
-              URLs and pasted notes are sent to the generator. Text files are excerpted automatically; PDF and Word files are listed by name unless you paste key excerpts.
+              URLs and pasted notes are sent to the generator. Text files are excerpted automatically; JPG, PNG, and WebP images are sent as visual context. PDF and Word files are listed by name unless you paste key excerpts.
             </p>
+            {resourceImages.length ? (
+              <div className="mt-3 rounded-md border border-[#ead7c4] bg-[#fff8ef] p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-[#006b35]">
+                  Attached images for AI context
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  {resourceImages.map((image, index) => (
+                    <div key={`${image.name}-${index}`} className="flex gap-3 rounded-md border border-[#ead7c4] bg-white p-2">
+                      <img
+                        src={image.dataUrl}
+                        alt=""
+                        className="h-16 w-16 rounded border border-[#ead7c4] object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-[#28312c]">{image.name}</p>
+                        <p className="mt-1 text-xs leading-5 text-[#66736b]">
+                          This image can inform activities, materials, procedures, and the hands-on project.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeResourceImage(index)}
+                          className="mt-1 text-xs font-semibold text-[#9d3b32] underline-offset-2 hover:underline"
+                        >
+                          Remove image
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {resourceNotice ? (
+              <p className="mt-2 text-xs leading-5 text-[#9d3b32]">{resourceNotice}</p>
+            ) : null}
           </div>
 
           {notice ? (

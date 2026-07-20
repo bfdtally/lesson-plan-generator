@@ -24,6 +24,12 @@ export type LessonFormData = {
   lessonDescription: string;
 };
 
+export type ResourceImage = {
+  name: string;
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
+  dataUrl: string;
+};
+
 export type RubricLevel = {
   label:
     | "Favorable"
